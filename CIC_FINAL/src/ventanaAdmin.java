@@ -460,8 +460,9 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             actualizarMedico(id, dlg);
         }
     } else if (op == 1) { // ELIMINAR
-        eliminarMedicoSeguro(id);
+    manejarEliminacionMedico(id);
     }
+
 
     }//GEN-LAST:event_tblCitaMouseClicked
 
@@ -607,6 +608,65 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         llenarPersonal();
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error al actualizar: " + ex.getMessage());
+    }
+}
+    private void manejarEliminacionMedico(String idMedico) {
+    if (con == null) {
+        JOptionPane.showMessageDialog(this, "Conexión nula.");
+        return;
+    }
+
+    try {
+        // 1) Contar citas "activas" del médico
+        String sqlCount = "SELECT COUNT(*) FROM CITA WHERE idMedico = ?";
+        int total = 0;
+
+        try (PreparedStatement ps = con.prepareStatement(sqlCount)) {
+            ps.setInt(1, Integer.parseInt(idMedico));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        }
+
+        if (total == 0) {
+            // 2) No tiene citas → mensaje + botones Eliminar / Cancelar
+            Object[] opciones = { "Eliminar", "Cancelar" };
+            int op = JOptionPane.showOptionDialog(
+                    this,
+                    "Este médico no tiene citas disponibles.\n\n¿Deseas eliminarlo?",
+                    "Eliminar médico",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            if (op == 0) {
+                // El usuario confirmó
+                eliminarMedicoSeguro(idMedico);
+            }
+
+        } else {
+            // 3) SÍ tiene citas → abrir diálogo para reasignar
+            ReasignarCitasDialog dlg = new ReasignarCitasDialog(this, con, Integer.parseInt(idMedico));
+            dlg.setVisible(true);
+
+            // Si el diálogo indica que ya reasignó todas las citas,
+            // entonces ahora sí lo puedes eliminar
+            if (dlg.fueReasignadoTodo()) {
+                eliminarMedicoSeguro(idMedico);
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this,
+                "Error verificando citas del médico:\n" + ex.getMessage());
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this,
+                "idMedico no es numérico: " + idMedico);
     }
 }
 
@@ -959,7 +1019,7 @@ private void eliminarRecepcionista(String id) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventanaAdmin vcm = new ventanaAdmin(usuarioId);
                 vcm.setVisible(true);
             }
         });
