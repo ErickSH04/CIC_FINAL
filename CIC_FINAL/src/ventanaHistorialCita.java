@@ -30,7 +30,7 @@ public class ventanaHistorialCita extends javax.swing.JFrame {
         lblFecha.setText(obtenerFecha());
         //actualizarCitasPasadas();
         llenarCitas();
-        aplicarColoresEstatus();
+      //  aplicarColoresEstatus();
         DefaultTableModel model = (DefaultTableModel) tblCita.getModel();
         tblCita.setModel(model);
         // Aplicar color al encabezado
@@ -315,7 +315,7 @@ public class ventanaHistorialCita extends javax.swing.JFrame {
         cmbDia.setSelectedIndex(0);
         //actualizarCitasPasadas();  // Actualiza citas pasadas
         llenarCitas();              // Vuelve a llenar la tabla
-        aplicarColoresEstatus();    // Reaplica los colores
+        //aplicarColoresEstatus();    // Reaplica los colores
     }//GEN-LAST:event_btnLimpiarActionPerformed
 
     private void cmbDiaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbDiaItemStateChanged
@@ -712,7 +712,7 @@ private void buscarPorFecha() {
         java.util.logging.Logger.getLogger(ventanaCitasMed.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
 }*/
-  public void llenarCitas() {
+public void llenarCitas() {
     con = ConexionSQL.ConexionSQLServer();
     m.setRowCount(0);
     
@@ -731,17 +731,26 @@ private void buscarPorFecha() {
             return;
         }
         
-        // Consulta que filtra por el paciente logueado
+        // Consulta unificada: citas + citas completadas
         String query = """
             SELECT cit.idCita, cit.fecha, cit.hora, med.nombreMed, med.Especialidad, cit.estatus
-            FROM cita cit 
+            FROM cita cit
             INNER JOIN medico med ON med.idMedico = cit.idMedico
             WHERE cit.numeroSeguro = ?
-            ORDER BY cit.fecha DESC
+            
+            UNION ALL
+            
+            SELECT cc.idCita, cc.fecha, cc.hora, med.nombreMed, med.Especialidad, 'Completada' AS estatus
+            FROM CitasCompletadas cc
+            INNER JOIN medico med ON med.idMedico = cc.idMedico
+            WHERE cc.numeroSeguro = ?
+            
+            ORDER BY fecha DESC
         """;
-        
+
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, numeroSeguro);
+        ps.setString(2, numeroSeguro);
         ResultSet result = ps.executeQuery();
 
         Object R[] = new Object[6];
@@ -759,8 +768,9 @@ private void buscarPorFecha() {
         JOptionPane.showMessageDialog(this, "Error al cargar historial de citas: " + ex.getMessage());
         ex.printStackTrace();
     }
-}  
-    
+}
+
+
     
 /*void aplicarColoresEstatus() {
     tblCita.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
@@ -802,7 +812,8 @@ private void buscarPorFecha() {
         }
     });
 }*/
-  void aplicarColoresEstatus() {
+
+  /*void aplicarColoresEstatus() {
     tblCita.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
         @Override
         public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
@@ -827,6 +838,10 @@ private void buscarPorFecha() {
                     setBackground(new java.awt.Color(0, 102, 204)); // Azul
                     setForeground(java.awt.Color.WHITE);
                     break;
+                case "completada":
+    setBackground(new java.awt.Color(255, 165, 0)); // naranja
+    setForeground(java.awt.Color.WHITE);
+    break;
                 default:
                     setBackground(java.awt.Color.WHITE);
                     setForeground(java.awt.Color.BLACK);
@@ -840,7 +855,7 @@ private void buscarPorFecha() {
             return this;
         }
     });
-}
+}*/
 
         private String obtenerFecha() {
         String fecha = "";
@@ -876,8 +891,8 @@ private void buscarPorFecha() {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
-                vcm.setVisible(true);
+               // ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                //vcm.setVisible(true);
             }
         });
     }

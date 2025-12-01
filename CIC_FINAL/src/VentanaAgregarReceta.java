@@ -99,7 +99,7 @@ public class VentanaAgregarReceta extends javax.swing.JFrame {
                         "Éxito", 
                         JOptionPane.INFORMATION_MESSAGE);
                     
-                    abrirVentanaReceMed(indicaciones, medicamentos, medicoSeleccionado);
+                    //abrirVentanaReceMed(indicaciones, medicamentos, medicoSeleccionado);
                     limpiarCampos();
                 } else {
                     JOptionPane.showMessageDialog(this, 

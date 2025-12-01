@@ -1050,7 +1050,7 @@ private void buscarMedico(String nombre) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventanaConsultarMedicoHorario vcm = new ventanaConsultarMedicoHorario(usuarioId);
                 vcm.setVisible(true);
             }
         });

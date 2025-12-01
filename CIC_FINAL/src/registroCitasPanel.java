@@ -1,4 +1,4 @@
-
+/*
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -137,16 +137,16 @@ public class registroCitasPanel extends JPanel {
         }
     }
 
-    private void registrarCita(String correo) {
-        try {
+    /*private void registrarCita(String correo) {
+        /*try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String fechaFmt = sdf.format(dcFecha.getDate());
             String nss = cmbNSS.getSelectedItem().toString();
             String idCita = txtIdCita.getText();
             String hora = txtHora.getText();
-            String idMed = ventanaCitasMed.obtenerIdMed(correo);
+            //String idMed = ventanaCitasMed.obtenerIdMed(correo);
 
-            String insert = String.join("\n",
+           /* String insert = String.join("\n",
                 "INSERT INTO Cita (idCita, fecha, hora, numeroSeguro, idMedico)",
                 "VALUES ('"+idCita+"','"+fechaFmt+"','"+hora+"','"+nss+"','"+idMed+"');"
             );
@@ -158,6 +158,6 @@ public class registroCitasPanel extends JPanel {
                   .log(Level.SEVERE, null, ex);
             showMessageDialog(null, "Error al insertar cita");
         }
-    }
-}
+    }*/
+//}
 

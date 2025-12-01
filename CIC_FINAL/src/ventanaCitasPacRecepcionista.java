@@ -815,11 +815,18 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = null;
-                vcm = new ventanaCitasMed(usuarioId);
+                try{
+                 ventanaCitasPacRecepcionista vcm = new ventanaCitasPacRecepcionista("");
                 vcm.setVisible(true);
+               
+                }catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+                    .log(java.util.logging.Level.SEVERE, null, ex);
+               
             }
-        });
+                
+            }    
+                });
     }
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables

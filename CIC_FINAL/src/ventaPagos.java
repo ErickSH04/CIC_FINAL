@@ -471,7 +471,7 @@ public class ventaPagos extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventaPagos vcm = new ventaPagos(usuarioId);
                 vcm.setVisible(true);
             }
         });
