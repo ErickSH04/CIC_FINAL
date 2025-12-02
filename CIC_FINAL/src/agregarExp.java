@@ -32,7 +32,7 @@ public class agregarExp extends javax.swing.JFrame {
         rellenarEtiquetas(paciente.getNss());
         this.setLocationRelativeTo(null);
         insertarIdDelExpediente();
-        txtTemp.setSize(64, 22);
+        
         txtFrecResp.setSize(64, 22);
         txtPresArt.setSize(64, 22);
         txtFrecCardiaca.setSize(64, 22);
@@ -69,7 +69,6 @@ public class agregarExp extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         cmbTemp = new javax.swing.JComboBox<>();
-        txtTemp = new javax.swing.JTextField();
         txtFrecResp = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         txtPresArt = new javax.swing.JTextField();
@@ -85,6 +84,8 @@ public class agregarExp extends javax.swing.JFrame {
         lblEdad = new javax.swing.JLabel();
         lblidExp = new javax.swing.JLabel();
         lblIdenExp = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        txtFrecCardiaca2 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -195,16 +196,16 @@ public class agregarExp extends javax.swing.JFrame {
         jLabel17.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel17.setText("Motivo de atención");
 
-        cmbTemp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecciona unidad de medida...", "C°", "F°" }));
+        cmbTemp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecciona unidad de medida...", "Hipotermia ", "32 °C", "33 °C", "34 °C", "35 °C", "36 °C", "37 °C", "38 °C", "39 °C", "40 °C", "Hipertermia severa" }));
 
         jLabel18.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel18.setText("Resp/min");
+        jLabel18.setText("RPM");
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel19.setText("mmHg");
 
         jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel20.setText("Pulsaciones/min");
+        jLabel20.setText("LPM");
 
         txtMotivo.setColumns(20);
         txtMotivo.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
@@ -241,6 +242,9 @@ public class agregarExp extends javax.swing.JFrame {
         lblIdenExp.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblIdenExp.setText("jLabel6");
 
+        jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel21.setText("/");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -266,24 +270,6 @@ public class agregarExp extends javax.swing.JFrame {
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 629, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel16)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel20))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel15)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtPresArt, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel19))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel13)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtTemp, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(cmbTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                             .addGroup(layout.createSequentialGroup()
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                     .addGroup(layout.createSequentialGroup()
@@ -311,16 +297,37 @@ public class agregarExp extends javax.swing.JFrame {
                                                                     .addComponent(jLabel1))
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                                                 .addComponent(lblEdad))))))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel14)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(txtFrecResp, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel18))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jLabel2)
-                                                .addGap(71, 71, 71)
-                                                .addComponent(jLabel3))))
+                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(jLabel13)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(cmbTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(jLabel14)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(txtFrecResp, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(jLabel18))
+                                                .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(jLabel2)
+                                                    .addGap(71, 71, 71)
+                                                    .addComponent(jLabel3))
+                                                .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(jLabel16)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(jLabel21)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(jLabel20))
+                                                .addGroup(layout.createSequentialGroup()
+                                                    .addComponent(jLabel15)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(txtPresArt, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(jLabel19)))))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(lblidExp)
                                         .addGap(18, 18, 18)
@@ -368,7 +375,6 @@ public class agregarExp extends javax.swing.JFrame {
                 .addGap(48, 48, 48)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel13)
-                    .addComponent(txtTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -384,7 +390,9 @@ public class agregarExp extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
                     .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel20))
+                    .addComponent(jLabel20)
+                    .addComponent(jLabel21)
+                    .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -422,20 +430,16 @@ public class agregarExp extends javax.swing.JFrame {
         
         Statement st; 
         String fecha = "";
-        String t="";
         
-        if(cmbTemp.getSelectedIndex()==1){
-            t = "C°";
-        }else{
-            t = "F°";
-        }
+        String temp = cmbTemp.getSelectedItem().toString();
+        
         LocalDateTime hoy = LocalDateTime.now();
         fecha = hoy.getYear()+"-"+hoy.getMonthValue()+"-"+hoy.getDayOfMonth();
         
         
         String queryGuardar="insert into expediente_clinico\n" +
-                            "values ('"+this.medico.getIdMedico()+"','"+this.paciente.getNss()+"', '"+txtTemp.getText()+" "+t+"','"+txtFrecResp.getText()+"', '"+txtPresArt.getText()+"',\n"
-                            + "'"+txtFrecCardiaca.getText()+"', '"+txtMotivo.getText()+"', '"+fecha+"') ";
+                            "values ('"+this.medico.getIdMedico()+"','"+this.paciente.getNss()+"', '"+temp+"','"+txtFrecResp.getText()+"', '"+txtPresArt.getText()+"',\n"
+                            + "'"+txtFrecCardiaca.getText()+"/"+txtFrecCardiaca2.getText()+"', '"+txtMotivo.getText()+"', '"+fecha+"') ";
         
         try{
             st = con.createStatement();
@@ -445,7 +449,7 @@ public class agregarExp extends javax.swing.JFrame {
             System.out.println(e.getMessage()+"  AQUI ESTA EL ERROR");
         }
         
-        txtTemp.setText("");
+        cmbTemp.setSelectedIndex(0);
         txtFrecResp.setText("");
         txtPresArt.setText("");
         txtFrecCardiaca.setText("");
@@ -583,6 +587,7 @@ public class agregarExp extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel8;
@@ -604,9 +609,9 @@ public class agregarExp extends javax.swing.JFrame {
     private javax.swing.JLabel lblidExp;
     private Reloj1 reloj11;
     private javax.swing.JTextField txtFrecCardiaca;
+    private javax.swing.JTextField txtFrecCardiaca2;
     private javax.swing.JTextField txtFrecResp;
     private javax.swing.JTextArea txtMotivo;
     private javax.swing.JTextField txtPresArt;
-    private javax.swing.JTextField txtTemp;
     // End of variables declaration//GEN-END:variables
 }

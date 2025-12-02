@@ -29,7 +29,7 @@ public class ConexionSQL {
    
     public static Connection ConexionSQLServer() {
         String conexionUr1 = "jdbc:sqlserver://database-1.ck3g6s0mwbro.us-east-1.rds.amazonaws.com:1433;"  // Reemplaza con tu endpoint de RDS
-                + "database=Agenda;"  // Reemplaza con el nombre de tu base de datos en RDS
+                + "database=Agenda1;"  // Reemplaza con el nombre de tu base de datos en RDS
                 + "user=admin;"  // Reemplaza con tu nombre de usuario
                 + "password=12345678CIC;"  // Reemplaza con tu contraseña
                 + "encrypt=true;"

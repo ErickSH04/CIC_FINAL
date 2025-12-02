@@ -117,5 +117,6 @@ public class medico {
         System.out.println("numero de cedula: "+med.getNumCedula());
         System.out.println("domicilio: "+med.getDomicilio());
         System.out.println("correo: "+med.getCorreo());
+        System.out.println("Id del medico: "+Integer.parseInt(med.getIdMedico()));
     }
 }

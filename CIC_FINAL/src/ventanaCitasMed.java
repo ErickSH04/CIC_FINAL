@@ -315,7 +315,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             String buscar = "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
                     + "FROM cita cit\n"
                     + "INNER JOIN paciente pac ON pac.numeroSeguro = cit.numeroSeguro\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
+                    + "WHERE cit.idMedico = " + Integer.parseInt(this.medico.getIdMedico()) + " \n"
                     + "  AND MONTH(cit.fecha) = '" + nMes + "' \n"
                     + "  AND DAY(cit.fecha) = '" + nDia + "';";
 
@@ -342,7 +342,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
                     + "from cita cit\n"
                     + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
+                    + "WHERE cit.idMedico = " + Integer.parseInt(this.medico.getIdMedico()) + " \n"
                     + "  AND MONTH(cit.fecha) = " + nMes;
             try {
                 stmt = con.createStatement();
@@ -367,7 +367,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
                     + "from cita cit\n"
                     + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
+                    + "WHERE cit.idMedico = " + Integer.parseInt(this.medico.getIdMedico()) + " \n"
                     + "  AND DAY(cit.fecha) = " + nDia + ";";
             try {
                 stmt = con.createStatement();
@@ -638,7 +638,8 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         query = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
                 + "from cita cit\n"
                 + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                + "WHERE pac.nombrePac LIKE '%" + busqueda + "%'";
+                + "WHERE pac.nombrePac LIKE '%"+busqueda+"' and (convert(date, fecha)>=convert(date, getDate())) and idMedico ="+Integer.parseInt(this.medico.getIdMedico());
+  
         try {
             stmt = con.createStatement();
             rs = stmt.executeQuery(query);
@@ -669,7 +670,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             String query="select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
             +"from cita cit\n"
             +"inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-            +"where cit.idMedico="+"'"  +this.medico.getIdMedico()+"'\n"
+            +"where (convert(date, fecha)>=convert(date, getDate())) and idMedico ="+Integer.parseInt(this.medico.getIdMedico())+"\n"
             +"ORDER BY cit.fecha";
             
             ResultSet result = stmt.executeQuery(query);
