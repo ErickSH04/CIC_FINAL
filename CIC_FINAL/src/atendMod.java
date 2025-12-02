@@ -236,7 +236,7 @@ public class atendMod extends javax.swing.JFrame {
     }//GEN-LAST:event_lblAtrasMouseClicked
 
     private void lblGenRecMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGenRecMouseClicked
-         VentanaAgregarReceta ventanaAgregar = new VentanaAgregarReceta(this.medico.getCorreo());
+         VentanaAgregarReceta ventanaAgregar = new VentanaAgregarReceta(ventanaCitasMed.getPaciente(),ventanaMedico.getMedico());
          ventanaAgregar.setVisible(true);
          this.dispose();
         

@@ -43,6 +43,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         lblInicio = new javax.swing.JLabel();
         lblCitaCompletada = new javax.swing.JLabel();
         lblAgregarCita1 = new javax.swing.JLabel();
+        lblCitasT = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCita = new javax.swing.JTable();
         cmbMes = new javax.swing.JComboBox<>();
@@ -98,6 +99,15 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             }
         });
 
+        lblCitasT.setFont(new java.awt.Font("Roboto", 2, 22)); // NOI18N
+        lblCitasT.setIcon(new javax.swing.ImageIcon("C:\\CIC_FINAL\\CIC_FINAL\\CIC_FINAL\\src\\imagenes\\cita-medica.png")); // NOI18N
+        lblCitasT.setText("Citas totales");
+        lblCitasT.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblCitasTMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -108,6 +118,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCitasT)
                     .addComponent(lblInicio)
                     .addComponent(lblCitaCompletada)
                     .addComponent(lblAgregarCita1)
@@ -122,9 +133,11 @@ public class ventanaCitasMed extends javax.swing.JFrame {
                 .addComponent(lblInicio)
                 .addGap(65, 65, 65)
                 .addComponent(lblAgregarCita1)
-                .addGap(64, 64, 64)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
                 .addComponent(lblCitaCompletada)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
+                .addGap(48, 48, 48)
+                .addComponent(lblCitasT)
+                .addGap(28, 28, 28)
                 .addComponent(lblSalir)
                 .addGap(119, 119, 119))
         );
@@ -631,6 +644,12 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         llenarCitas();
     }//GEN-LAST:event_btnRefreshMouseClicked
 
+    private void lblCitasTMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCitasTMouseClicked
+        ventanaCitasTotales cc = new ventanaCitasTotales(this.medico);
+        cc.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_lblCitasTMouseClicked
+
     private String obtenerFecha() {
         String fecha = "";
         LocalDateTime hoy = LocalDateTime.now();
@@ -746,6 +765,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
     private javax.swing.JLabel lblAgregarCita1;
     private javax.swing.JLabel lblBuscar;
     private javax.swing.JLabel lblCitaCompletada;
+    private javax.swing.JLabel lblCitasT;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblInicio;
     private javax.swing.JLabel lblSalir;

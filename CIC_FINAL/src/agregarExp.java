@@ -21,6 +21,7 @@ public class agregarExp extends javax.swing.JFrame {
     private Paciente paciente;
     private medico medico;
     private Connection con;
+    private int id;
     /**
      * Creates new form agregarExp
      */
@@ -37,6 +38,7 @@ public class agregarExp extends javax.swing.JFrame {
         txtPresArt.setSize(64, 22);
         txtFrecCardiaca.setSize(64, 22);
     }
+        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -84,7 +86,7 @@ public class agregarExp extends javax.swing.JFrame {
         lblidExp = new javax.swing.JLabel();
         lblIdenExp = new javax.swing.JLabel();
         txtFrecCardiaca2 = new javax.swing.JTextField();
-        jLabel22 = new javax.swing.JLabel();
+        lblEspacio = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -150,13 +152,10 @@ public class agregarExp extends javax.swing.JFrame {
         jLabel4.setText("Apellido materno");
 
         lblNombre.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblNombre.setText("jLabel5");
 
         lblAp2.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblAp2.setText("jLabel6");
 
         lblAp1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblAp1.setText("jLabel7");
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel8.setText("Fecha de nacimiento");
@@ -229,8 +228,8 @@ public class agregarExp extends javax.swing.JFrame {
         lblIdenExp.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblIdenExp.setText("jLabel6");
 
-        jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel22.setText("/");
+        lblEspacio.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblEspacio.setText("/");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -262,7 +261,7 @@ public class agregarExp extends javax.swing.JFrame {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(lblEspacio, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -338,7 +337,7 @@ public class agregarExp extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblidExp)
                     .addComponent(lblIdenExp))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -378,7 +377,7 @@ public class agregarExp extends javax.swing.JFrame {
                     .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel20)
                     .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel22))
+                    .addComponent(lblEspacio))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -450,7 +449,7 @@ public class agregarExp extends javax.swing.JFrame {
             st = con.createStatement();
             rs= st.executeQuery(query);
             while(rs.next()){
-                System.out.println("El ultimo pendejo valor del idExpediente: "+rs.getString("idExp"));
+                System.out.println("El ultimo  valor del idExpediente: "+rs.getString("idExp"));
                 ultimoExp=rs.getInt("idExp")+1;
             }
         }catch(SQLException e){
@@ -567,7 +566,6 @@ public class agregarExp extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel8;
@@ -579,6 +577,7 @@ public class agregarExp extends javax.swing.JFrame {
     private javax.swing.JLabel lblAtras;
     private javax.swing.JLabel lblCancelar;
     private javax.swing.JLabel lblEdad;
+    private javax.swing.JLabel lblEspacio;
     private javax.swing.JLabel lblFecNac;
     private javax.swing.JLabel lblGuardar;
     private javax.swing.JLabel lblIdenExp;
