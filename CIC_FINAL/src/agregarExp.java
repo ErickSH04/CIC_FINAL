@@ -50,7 +50,6 @@ public class agregarExp extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         lblSalir = new javax.swing.JLabel();
         lblAtras = new javax.swing.JLabel();
-        lblActualizar = new javax.swing.JLabel();
         lblUsuario1 = new javax.swing.JLabel();
         reloj11 = new Reloj1();
         jLabel1 = new javax.swing.JLabel();
@@ -84,8 +83,8 @@ public class agregarExp extends javax.swing.JFrame {
         lblEdad = new javax.swing.JLabel();
         lblidExp = new javax.swing.JLabel();
         lblIdenExp = new javax.swing.JLabel();
-        jLabel21 = new javax.swing.JLabel();
         txtFrecCardiaca2 = new javax.swing.JTextField();
+        jLabel22 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -109,15 +108,6 @@ public class agregarExp extends javax.swing.JFrame {
             }
         });
 
-        lblActualizar.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
-        lblActualizar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/actualizar-datos.png"))); // NOI18N
-        lblActualizar.setText("Actualizar expediente");
-        lblActualizar.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblActualizarMouseClicked(evt);
-            }
-        });
-
         lblUsuario1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/logo .png"))); // NOI18N
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -131,21 +121,18 @@ public class agregarExp extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblSalir)
-                    .addComponent(lblActualizar)
                     .addComponent(lblAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(109, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(lblUsuario1)
-                .addGap(165, 165, 165)
-                .addComponent(lblActualizar)
-                .addGap(90, 90, 90)
+                .addGap(245, 245, 245)
                 .addComponent(lblAtras)
-                .addGap(153, 153, 153)
+                .addGap(227, 227, 227)
                 .addComponent(lblSalir)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(157, Short.MAX_VALUE))
         );
 
         reloj11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -196,16 +183,16 @@ public class agregarExp extends javax.swing.JFrame {
         jLabel17.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel17.setText("Motivo de atención");
 
-        cmbTemp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecciona unidad de medida...", "Hipotermia ", "32 °C", "33 °C", "34 °C", "35 °C", "36 °C", "37 °C", "38 °C", "39 °C", "40 °C", "Hipertermia severa" }));
+        cmbTemp.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecciona la temperatura...", "Hipotermia", "32 °C", "33 °C", "34 °C", "35 °C", "36 °C", "37 °C", "38 °C", "39 °C", "40 °C", "Hipertermia severa" }));
 
         jLabel18.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel18.setText("RPM");
+        jLabel18.setText("Resp/min");
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel19.setText("mmHg");
 
         jLabel20.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel20.setText("LPM");
+        jLabel20.setText("Pulsaciones/min");
 
         txtMotivo.setColumns(20);
         txtMotivo.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
@@ -242,8 +229,8 @@ public class agregarExp extends javax.swing.JFrame {
         lblIdenExp.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblIdenExp.setText("jLabel6");
 
-        jLabel21.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabel21.setText("/");
+        jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel22.setText("/");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -271,6 +258,26 @@ public class agregarExp extends javax.swing.JFrame {
                                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 629, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel16)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel20))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel15)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(txtPresArt, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel19))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel13)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(cmbTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(layout.createSequentialGroup()
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                                     .addGroup(layout.createSequentialGroup()
                                                         .addComponent(lblNombre)
@@ -281,12 +288,6 @@ public class agregarExp extends javax.swing.JFrame {
                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                         .addComponent(lblFecNac)))
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                        .addGap(216, 216, 216)
-                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                            .addComponent(lblAp2)
-                                                            .addComponent(jLabel4))
-                                                        .addGap(52, 52, 52))
                                                     .addGroup(layout.createSequentialGroup()
                                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -296,38 +297,23 @@ public class agregarExp extends javax.swing.JFrame {
                                                                     .addComponent(jLabel10)
                                                                     .addComponent(jLabel1))
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                .addComponent(lblEdad))))))
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel13)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(cmbTemp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel14)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(txtFrecResp, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jLabel18))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel2)
-                                                    .addGap(71, 71, 71)
-                                                    .addComponent(jLabel3))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel16)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jLabel21)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jLabel20))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addComponent(jLabel15)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(txtPresArt, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                    .addComponent(jLabel19)))))
+                                                                .addComponent(lblEdad))))
+                                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                        .addGap(216, 216, 216)
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                            .addComponent(lblAp2)
+                                                            .addComponent(jLabel4))
+                                                        .addGap(52, 52, 52))))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel14)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(txtFrecResp, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel18))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(jLabel2)
+                                                .addGap(71, 71, 71)
+                                                .addComponent(jLabel3))))
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(lblidExp)
                                         .addGap(18, 18, 18)
@@ -391,8 +377,8 @@ public class agregarExp extends javax.swing.JFrame {
                     .addComponent(jLabel16)
                     .addComponent(txtFrecCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel20)
-                    .addComponent(jLabel21)
-                    .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtFrecCardiaca2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel22))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -419,12 +405,6 @@ public class agregarExp extends javax.swing.JFrame {
         em.setVisible(true);
         //revisar que este mande al expediente medico
     }//GEN-LAST:event_lblAtrasMouseClicked
-
-    private void lblActualizarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblActualizarMouseClicked
-        act_eli_Expediente aee = new act_eli_Expediente(this.medico);
-        this.setVisible(false);
-        aee.setVisible(true);
-    }//GEN-LAST:event_lblActualizarMouseClicked
 
     private void lblGuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblGuardarMouseClicked
         
@@ -587,13 +567,12 @@ public class agregarExp extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
-    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblActualizar;
     private javax.swing.JLabel lblAgregar;
     private javax.swing.JLabel lblAp1;
     private javax.swing.JLabel lblAp2;

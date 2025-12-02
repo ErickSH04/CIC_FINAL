@@ -49,7 +49,11 @@
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="txtFrecCardiaca" min="-2" pref="67" max="-2" attributes="0"/>
+                                              <Component id="txtFrecCardiaca" min="-2" pref="35" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="jLabel22" min="-2" pref="16" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="txtFrecCardiaca2" min="-2" pref="35" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Component id="jLabel20" min="-2" max="-2" attributes="0"/>
                                           </Group>
@@ -62,9 +66,7 @@
                                           </Group>
                                           <Group type="102" attributes="0">
                                               <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="txtTemp" min="-2" pref="64" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
+                                              <EmptySpace type="separate" max="-2" attributes="0"/>
                                               <Component id="cmbTemp" min="-2" max="-2" attributes="0"/>
                                           </Group>
                                           <Group type="102" alignment="0" attributes="0">
@@ -81,14 +83,6 @@
                                                   </Group>
                                               </Group>
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Group type="102" alignment="1" attributes="0">
-                                                      <EmptySpace min="-2" pref="216" max="-2" attributes="0"/>
-                                                      <Group type="103" groupAlignment="0" attributes="0">
-                                                          <Component id="lblAp2" min="-2" max="-2" attributes="0"/>
-                                                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                                      </Group>
-                                                      <EmptySpace min="-2" pref="52" max="-2" attributes="0"/>
-                                                  </Group>
                                                   <Group type="102" alignment="0" attributes="0">
                                                       <EmptySpace max="-2" attributes="0"/>
                                                       <Group type="103" groupAlignment="0" attributes="0">
@@ -102,6 +96,14 @@
                                                               <Component id="lblEdad" min="-2" max="-2" attributes="0"/>
                                                           </Group>
                                                       </Group>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <EmptySpace min="-2" pref="216" max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="lblAp2" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace min="52" pref="52" max="-2" attributes="0"/>
                                                   </Group>
                                               </Group>
                                           </Group>
@@ -181,7 +183,6 @@
               <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="txtTemp" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cmbTemp" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -201,6 +202,8 @@
                   <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="txtFrecCardiaca" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="txtFrecCardiaca2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel22" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
@@ -235,10 +238,9 @@
                   <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="lblSalir" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblActualizar" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="lblAtras" alignment="0" min="-2" pref="161" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="20" max="32767" attributes="0"/>
+                  <EmptySpace pref="109" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -246,13 +248,11 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <Component id="lblUsuario1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="165" max="-2" attributes="0"/>
-                  <Component id="lblActualizar" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="90" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="245" max="-2" attributes="0"/>
                   <Component id="lblAtras" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="153" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="227" max="-2" attributes="0"/>
                   <Component id="lblSalir" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="157" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -284,20 +284,6 @@
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lblAtrasMouseClicked"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JLabel" name="lblActualizar">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Roboto" size="24" style="2"/>
-            </Property>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/imagenes/actualizar-datos.png"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Actualizar expediente"/>
-          </Properties>
-          <Events>
-            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="lblActualizarMouseClicked"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="lblUsuario1">
@@ -444,18 +430,25 @@
     <Component class="javax.swing.JComboBox" name="cmbTemp">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="3">
-            <StringItem index="0" value="Selecciona unidad de medida..."/>
-            <StringItem index="1" value="C&#xb0;"/>
-            <StringItem index="2" value="F&#xb0;"/>
+          <StringArray count="12">
+            <StringItem index="0" value="Selecciona la temperatura..."/>
+            <StringItem index="1" value="Hipotermia"/>
+            <StringItem index="2" value="32 &#xb0;C"/>
+            <StringItem index="3" value="33 &#xb0;C"/>
+            <StringItem index="4" value="34 &#xb0;C"/>
+            <StringItem index="5" value="35 &#xb0;C"/>
+            <StringItem index="6" value="36 &#xb0;C"/>
+            <StringItem index="7" value="37 &#xb0;C"/>
+            <StringItem index="8" value="38 &#xb0;C"/>
+            <StringItem index="9" value="39 &#xb0;C"/>
+            <StringItem index="10" value="40 &#xb0;C"/>
+            <StringItem index="11" value="Hipertermia severa"/>
           </StringArray>
         </Property>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
       </AuxValues>
-    </Component>
-    <Component class="javax.swing.JTextField" name="txtTemp">
     </Component>
     <Component class="javax.swing.JTextField" name="txtFrecResp">
     </Component>
@@ -576,6 +569,16 @@
           <Font name="Segoe UI" size="16" style="0"/>
         </Property>
         <Property name="text" type="java.lang.String" value="jLabel6"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="txtFrecCardiaca2">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel22">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Segoe UI" size="16" style="0"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="/"/>
       </Properties>
     </Component>
   </SubComponents>

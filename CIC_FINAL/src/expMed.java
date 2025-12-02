@@ -96,6 +96,9 @@ public class expMed extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAgregarMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                lblAgregarMouseEntered(evt);
+            }
         });
 
         lblUsuario1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/logo .png"))); // NOI18N
@@ -350,6 +353,10 @@ public class expMed extends javax.swing.JFrame {
         this.setVisible(false);
         ee.setVisible(true);
     }//GEN-LAST:event_lblConsultarExpMouseClicked
+
+    private void lblAgregarMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAgregarMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lblAgregarMouseEntered
     
     private void rellenarEtiquetas(String nss){
         ResultSet rs;

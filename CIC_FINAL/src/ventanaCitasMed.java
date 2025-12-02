@@ -3,7 +3,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -410,7 +412,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
 
     private void tblCitaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCitaMouseClicked
         con = ConexionSQL.ConexionSQLServer();
-
+        
         int respuesta = 0;
         respuesta = Integer.parseInt(JOptionPane.showInputDialog("¿Qué operación desea realizar?\n"
                 + "1.- Cita completada\n"
@@ -564,6 +566,14 @@ public class ventanaCitasMed extends javax.swing.JFrame {
             apellido2 = arreglo[4].toString();
             nss = arreglo[5].toString();
             estatus = arreglo[6].toString();
+            
+            LocalDate fechaCita = LocalDate.parse(fecha);
+            LocalDate hoy = LocalDate.now();
+            
+            if(fechaCita.isAfter(hoy)){
+                showMessageDialog(null,"No puede atender citas del futuro.");
+                return;
+            }
             
             this.paciente = rellenarDatosPaciente(nss);
             atendMod am = new atendMod(this.medico, this.paciente);
