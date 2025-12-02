@@ -18,7 +18,7 @@ public class ventanaCitasMed extends javax.swing.JFrame {
     public static Connection con;
     private static Paciente paciente;
     
-    public ventanaCitasMed(medico medico) {
+    public ventanaCitasMed(String medico) {
         this.medico = ventanaMedico.getMedico();
         initComponents();
         setSize(1200,800);

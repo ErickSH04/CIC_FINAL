@@ -49,7 +49,6 @@ public class VentanaInfoMedRecp extends javax.swing.JFrame {
         this.setLocationRelativeTo(this);
     }
     
-    
     public VentanaInfoMedRecp(String usuarioId) throws ClassNotFoundException {//String usuarioId
         //con = ConexionSQL.ConexionSQLServer();
         this.usuarioId = usuarioId;
