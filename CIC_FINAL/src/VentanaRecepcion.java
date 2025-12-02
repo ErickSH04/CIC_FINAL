@@ -5,6 +5,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import java.sql.PreparedStatement;
+
 
 public class VentanaRecepcion extends javax.swing.JFrame {
 
@@ -18,13 +22,15 @@ public class VentanaRecepcion extends javax.swing.JFrame {
         this.setLocationRelativeTo(this);
     }
 
-    public VentanaRecepcion(String usuarioId) throws ClassNotFoundException {//String usuarioId
+    public VentanaRecepcion(String usuarioId) throws ClassNotFoundException, SQLException {//String usuarioId
         this.usuarioId = usuarioId;
         initComponents();
         this.setLocationRelativeTo(this);
         String nombre = obtenerNombreRecepcion();
-        lblBienvenida.setText(nombre);
+        //lblBienvenida.setText(nombre);
     }
+    
+    
 
     public String obtenerNombreRecepcion() throws ClassNotFoundException {
     Connection conn = null;
@@ -53,7 +59,6 @@ public class VentanaRecepcion extends javax.swing.JFrame {
     } catch (SQLException ex) {
         System.err.println("Error obteniendo datos del recepcionista: " + ex.getMessage()); 
     } finally {
-        // ✅ CERRAR TODOS los recursos en orden inverso
         try {
             if (resultado != null) resultado.close();
         } catch (SQLException e) {
@@ -85,7 +90,7 @@ public class VentanaRecepcion extends javax.swing.JFrame {
         lblCerrarSesion = new javax.swing.JLabel();
         lblMedicos = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        lblBienvenida = new javax.swing.JLabel();
+        jLabelPagos = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -135,51 +140,57 @@ public class VentanaRecepcion extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/logo .png"))); // NOI18N
 
+        jLabelPagos.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
+        jLabelPagos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/dar-dinero.png"))); // NOI18N
+        jLabelPagos.setText("Pagos");
+        jLabelPagos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabelPagosMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(0, 8, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addContainerGap(8, Short.MAX_VALUE)
-                        .addComponent(lblCerrarSesion))
+                        .addComponent(lblMedicos)
+                        .addGap(59, 59, 59))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(lblCerrarSesion)
+                        .addContainerGap())))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(lblPacientes))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(16, 16, 16)
-                                .addComponent(lblMedicos))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(39, 39, 39)
-                                .addComponent(jLabel1))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(lblGestionCitas)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGap(39, 39, 39)
+                        .addComponent(jLabel1))
+                    .addComponent(lblPacientes)
+                    .addComponent(lblGestionCitas)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabelPagos, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(43, 43, 43)
                 .addComponent(jLabel1)
-                .addGap(132, 132, 132)
+                .addGap(72, 72, 72)
+                .addComponent(jLabelPagos)
+                .addGap(18, 18, 18)
                 .addComponent(lblGestionCitas)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(lblPacientes)
                 .addGap(18, 18, 18)
                 .addComponent(lblMedicos)
-                .addGap(18, 18, 18)
+                .addGap(33, 33, 33)
                 .addComponent(lblCerrarSesion)
-                .addContainerGap(107, Short.MAX_VALUE))
+                .addContainerGap(106, Short.MAX_VALUE))
         );
-
-        lblBienvenida.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        lblBienvenida.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblBienvenida.setText("jLabel1");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -187,17 +198,11 @@ public class VentanaRecepcion extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 535, Short.MAX_VALUE)
-                .addComponent(lblBienvenida)
-                .addGap(36, 36, 36))
+                .addContainerGap(660, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(94, 94, 94)
-                .addComponent(lblBienvenida)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -257,6 +262,16 @@ public class VentanaRecepcion extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_lblCerrarSesionMouseClicked
 
+    private void jLabelPagosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelPagosMouseClicked
+         // Abrir la ventana de pagos
+          ventaPagos vp = null;
+          vp = new ventaPagos(usuarioId); // si tu clase ventaPagos requiere usuarioId
+          if (vp != null) {
+          vp.setVisible(true);   // Mostrar ventana de pagos
+          this.dispose();        // Cerrar la ventana actual
+      }
+    }//GEN-LAST:event_jLabelPagosMouseClicked
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -291,9 +306,9 @@ public class VentanaRecepcion extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabelPagos;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JLabel lblBienvenida;
     private javax.swing.JLabel lblCerrarSesion;
     private javax.swing.JLabel lblGestionCitas;
     private javax.swing.JLabel lblMedicos;

@@ -1,6 +1,7 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -282,6 +283,11 @@ private void configurarValidacionPaciente() {
         jLabel10.setText("Medico:");
 
         txtNombrePaciente.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtNombrePaciente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtNombrePacienteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -447,47 +453,71 @@ private void configurarValidacionPaciente() {
     }//GEN-LAST:event_btnAtrasActionPerformed
 
     private void cmbMedicoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cmbMedicoItemStateChanged
-        Connection conn = null;
-        Statement stmt = null; 
-        ResultSet result = null; 
+             if (evt.getStateChange() != ItemEvent.SELECTED) return;
+    
+    String itemSeleccionado = cmbMedico.getSelectedItem().toString();
+    
+    if (itemSeleccionado.equals("Selecciona")) {
+        medicoId = null;
+        return;
+    }
+    
+    // EXTRAER SOLO EL NOMBRE (lo que está antes del " - ")
+    String soloNombre;
+    if (itemSeleccionado.contains(" - ")) {
+        soloNombre = itemSeleccionado.split(" - ")[0];
+    } else {
+        soloNombre = itemSeleccionado;
+    }
+    
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet result = null;
     
     try {
         conn = ConexionSQL.ConexionSQLServer();
-        if (conn != null) {
-            stmt = conn.createStatement();
-            String query = "SELECT idMedico FROM MEDICO WHERE nombreMed = '" + cmbMedico.getSelectedItem() + "'";
-            result = stmt.executeQuery(query);
+        
+        // Intentar obtener especialidad también
+        String query = "SELECT idMedico, especialidad FROM MEDICO WHERE nombreMed = ?";
+        
+        pstmt = conn.prepareStatement(query);
+        pstmt.setString(1, soloNombre);
+        result = pstmt.executeQuery();
 
-            while (result.next()) {
-                String doctor = result.getString("idMedico");
-                medicoId = doctor;
+        if (result.next()) {
+            medicoId = result.getString("idMedico");
+            // Puedes guardar la especialidad si la necesitas
+            try {
+                String especialidad = result.getString("especialidad");
+                // Si quieres mostrar la especialidad en otro lado:
+                // txtEspecialidad.setText(especialidad);
+            } catch (SQLException e) {
+                // El campo especialidad no existe
             }
         }
+        
     } catch (SQLException e) {
         e.printStackTrace();
     } finally {
-        //Cerrar todos los recursos
-        try {
-            if (result != null) result.close();
-        } catch (SQLException ex) { ex.printStackTrace(); }
-        try {
-            if (stmt != null) stmt.close();
-        } catch (SQLException ex) { ex.printStackTrace(); }
-        try {
-            if (conn != null) conn.close();
-        } catch (SQLException ex) { ex.printStackTrace(); }
-      }
+        // Cerrar recursos
+        try { if (result != null) result.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+    }
     }//GEN-LAST:event_cmbMedicoItemStateChanged
 
     private void cmbMedicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbMedicoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cmbMedicoActionPerformed
 
-    
+    private void txtNombrePacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombrePacienteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNombrePacienteActionPerformed
+
     public void llenarDoctor() {
-          Connection conn = null;
-          Statement stmt = null; 
-          ResultSet result = null; 
+    Connection conn = null;
+    Statement stmt = null; 
+    ResultSet result = null; 
     
     try {
         conn = ConexionSQL.ConexionSQLServer();
@@ -495,17 +525,50 @@ private void configurarValidacionPaciente() {
             cmbMedico.removeAllItems();
             cmbMedico.addItem("Selecciona");
 
+            // VERIFICA PRIMERO SI EXISTE EL CAMPO "especialidad" EN MEDICO
+            String verificarCampo = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS " +
+                                   "WHERE TABLE_NAME = 'MEDICO' AND COLUMN_NAME = 'especialidad'";
+            
             stmt = conn.createStatement();
-            String query = "SELECT nombreMed, idMedico FROM MEDICO";
+            result = stmt.executeQuery(verificarCampo);
+            
+            String query;
+            if (result.next()) {
+                // SI EXISTE el campo "especialidad", inclúyelo en la consulta
+                query = "SELECT nombreMed, idMedico, especialidad FROM MEDICO ORDER BY nombreMed";
+            } else {
+                // SI NO EXISTE, solo trae nombre e ID
+                query = "SELECT nombreMed, idMedico FROM MEDICO ORDER BY nombreMed";
+            }
+            result.close();
+            
+            // Ejecutar la consulta principal
             result = stmt.executeQuery(query);
 
             while (result.next()) {
                 String doctor = result.getString("nombreMed");
-                cmbMedico.addItem(doctor);
+                String especialidad = "";
+                
+                try {
+                    // Intentar obtener especialidad (puede no existir la columna)
+                    especialidad = result.getString("especialidad");
+                    if (especialidad != null && !especialidad.trim().isEmpty()) {
+                        // Agregar nombre + especialidad
+                        cmbMedico.addItem(doctor + " - " + especialidad);
+                    } else {
+                        // Solo nombre si no hay especialidad
+                        cmbMedico.addItem(doctor);
+                    }
+                } catch (SQLException e) {
+                    // Si falla al obtener especialidad, solo agregar nombre
+                    cmbMedico.addItem(doctor);
+                }
             }
         }
     } catch (SQLException e) {
         e.printStackTrace();
+        // Si hay error, cargar solo nombres
+        //cargarSoloNombres();
     } finally {
         //Cerrar todos los recursos
         try {
@@ -518,7 +581,7 @@ private void configurarValidacionPaciente() {
             if (conn != null) conn.close();
         } catch (SQLException ex) { ex.printStackTrace(); }
     }
-  }
+}
     
     
     private boolean verificarDisponibilidad(String idMedico, String fecha, String hora) {
