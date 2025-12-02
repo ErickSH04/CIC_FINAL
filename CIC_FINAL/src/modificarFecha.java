@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -169,39 +172,33 @@ public class modificarFecha extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelarActionPerformed
     //METODO PARA ACTUALIZAR LAS CITAS QUE QUIERE MODIFICAR EL PACIENTE 
     private void ActualizarCita(String idCita) {
-        String idMed;
         con = ConexionSQL.ConexionSQLServer();
-        Date fechaAct = new Date();
-        int diaAct = fechaAct.getDate();
-        int mesAct = fechaAct.getMonth();
-        int yearAct = fechaAct.getYear();
+
+        LocalDate fechaCita = dcFecha.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        LocalDate hoy = LocalDate.now();
+
+        LocalTime horaCita = LocalTime.parse(txtHora.getText());
+        LocalTime horaActual = LocalTime.now();
+
+        if (fechaCita.isBefore(hoy)) {
+            showMessageDialog(null, "No puede agendar citas en una fecha pasada.");
+        return;
+        }
         
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date fecha = dcFecha.getDate();
-        
-        int diaN = fecha.getDate();
-        int mesN = fecha.getMonth();
-        int yearN = fecha.getYear();
-        
-        String fechaFormato = sdf.format(fecha);
-        if(yearN<yearAct){
-            showMessageDialog(null,"No puede agendar citas del pasado. año");
+        if (fechaCita.isEqual(hoy)) {
+            if (horaCita.isBefore(horaActual)) {
+            showMessageDialog(null, "No puede agendar citas antes de la hora actual.");
             return;
         }
-        if(mesN<mesAct){
-            showMessageDialog(null,"No puede agendar citas del pasado. meses");
-            return;
-        }
-        if(diaN<diaAct){
-            showMessageDialog(null,"No puede agendar citas del pasado. días "+diaN);
-            return;
-        }
+    }
+     
         String query = "UPDATE Cita \n"
-                + "SET fecha ='" + fechaFormato + "',\n"
+                + "SET fecha ='" + fechaCita + "',\n"
                 + "hora = '" + txtHora.getText() + "',\n"
                 + "estatus = 'Modificado'\n"
                 + "WHERE idCita='" + this.idCita + "'";
-        System.out.println(query);
+                System.out.println(query);
 
         try {
             stmt = con.createStatement();
@@ -212,7 +209,8 @@ public class modificarFecha extends javax.swing.JFrame {
             System.out.println(ex.getMessage());
             showMessageDialog(null, "Error al modificar cita");
             return;
-        }
+        }    
+     
     }
 
     public static void main(String args[]) {
