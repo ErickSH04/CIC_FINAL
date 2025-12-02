@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class VentanaRecePac extends javax.swing.JFrame {
 
@@ -238,59 +239,86 @@ public class VentanaRecePac extends javax.swing.JFrame {
     }//GEN-LAST:event_cbmRecetasItemStateChanged
 
     public void llenarRecetas() {
-        try {
-            // Limpia los elementos existentes
-            cbmRecetas.removeAllItems();
-            cbmRecetas.addItem("Selecciona");
+    try {
+        // Limpia los elementos existentes
+        cbmRecetas.removeAllItems();
+        cbmRecetas.addItem("Selecciona");
 
-            // Ejecuta la consulta para obtener todos los usuarios
-            stmt = con.createStatement();
+        // Ejecuta la consulta para obtener todas las recetas del paciente
+        stmt = con.createStatement();
 
-            String query = "SELECT fechaEmision "
-                    + "FROM RecetaMedica R "
-                    + "INNER JOIN Paciente P ON P.numeroSeguro = R.idAsegurado "
-                    + "WHERE P.Correo = '" + usuarioId + "';";
-            ResultSet result = stmt.executeQuery(query);
+        // CORRECCIÓN: Usar numeroSeguro en lugar de idAsegurado y Correo en lugar de Correo
+        String query = "SELECT fechaEmision, idReceta "
+                + "FROM RecetaMedica R "
+                + "INNER JOIN Paciente P ON P.numeroSeguro = R.numeroSeguro "  // CORREGIDO
+                + "WHERE P.Correo = '" + usuarioId + "' "  // CORREGIDO
+                + "ORDER BY fechaEmision DESC";  // Ordenar por fecha más reciente
+        ResultSet result = stmt.executeQuery(query);
 
-            // Agrega los usuarios al JComboBox
-            while (result.next()) {
-                String fechaEmison = result.getString("fechaEmision");
-                cbmRecetas.addItem(fechaEmison);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace(); // Imprime el error para depuración
+        // Agrega las recetas al JComboBox
+        while (result.next()) {
+            String fechaEmision = result.getString("fechaEmision");
+            String idReceta = result.getString("idReceta");
+            // Mostrar fecha + ID para evitar duplicados
+            cbmRecetas.addItem(fechaEmision + " - ID: " + idReceta);
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al cargar las recetas: " + e.getMessage());
     }
+}
 
-    public void llenarDatos() {
-        try {
-            stmt = con.createStatement();
-            String query = "SELECT RM.fechaEmision, RM.idReceta, RM.indicaciones, RM.medicamentos, RM.idMedico "
-                    + "FROM RecetaMedica RM "
-                    + "INNER JOIN PACIENTE PAC ON PAC.numeroSeguro = RM.idAsegurado "
-                    + "WHERE fechaEmision = '" + fecha + "' AND PAC.Correo = '" + usuarioId + "'";
-            ResultSet result = stmt.executeQuery(query);
-            System.out.println("QUERY: " + query);
-            String fechaEmi = "", idReceta = "", indicaciones = "", medicamentos = "", medico = "";
-            while (result.next()) {
-               
-                fechaEmi = result.getString("fechaEmision");
-                idReceta = result.getString("idReceta");
-                indicaciones = result.getString("indicaciones");
-                medicamentos = result.getString("medicamentos");
-                medico = result.getString("idMedico");
-
-                lblFechaR.setText(fechaEmi);
-                lblIDR.setText(idReceta);
-                lblIndicacionesR.setText(indicaciones);
-                lblMedicamentoR.setText(medicamentos);
-                lblMedicoR.setText(medico);
-
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(VentanaInfoPac.class.getName()).log(Level.SEVERE, null, ex);
+public void llenarDatos() {
+    try {
+        // Si no hay fecha seleccionada o es "Selecciona", salir
+        if (fecha == null || fecha.equals("Selecciona")) {
+            return;
         }
+        
+        // Extraer solo la fecha del item seleccionado (en caso de que incluya el ID)
+        String fechaSeleccionada = fecha.split(" - ")[0];
+        
+        stmt = con.createStatement();
+        String query = "SELECT RM.fechaEmision, RM.idReceta, RM.indicaciones, RM.medicamentos, RM.idMedico "
+                + "FROM RecetaMedica RM "
+                + "INNER JOIN PACIENTE PAC ON PAC.numeroSeguro = RM.numeroSeguro "  // CORREGIDO
+                + "WHERE RM.fechaEmision = '" + fechaSeleccionada + "' AND PAC.Correo = '" + usuarioId + "'";  // CORREGIDO
+        ResultSet result = stmt.executeQuery(query);
+        System.out.println("QUERY: " + query);
+        
+        // Limpiar campos antes de llenar
+        lblFechaR.setText("");
+        lblIDR.setText("");
+        lblIndicacionesR.setText("");
+        lblMedicamentoR.setText("");
+        lblMedicoR.setText("");
+        
+        String fechaEmi = "", idReceta = "", indicaciones = "", medicamentos = "", medico = "";
+        while (result.next()) {
+            fechaEmi = result.getString("fechaEmision");
+            idReceta = result.getString("idReceta");
+            indicaciones = result.getString("indicaciones");
+            medicamentos = result.getString("medicamentos");
+            medico = result.getString("idMedico");
+
+            lblFechaR.setText(fechaEmi != null ? fechaEmi : "");
+            lblIDR.setText(idReceta != null ? idReceta : "");
+            lblIndicacionesR.setText(indicaciones != null ? indicaciones : "");
+            lblMedicamentoR.setText(medicamentos != null ? medicamentos : "");
+            lblMedicoR.setText(medico != null ? medico : "");
+        }
+        
+        // Si no se encontraron resultados
+        if (fechaEmi.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se encontró la receta seleccionada");
+        }
+        
+    } catch (SQLException ex) {
+        Logger.getLogger(VentanaRecePac.class.getName()).log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage());
     }
+    
+}
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

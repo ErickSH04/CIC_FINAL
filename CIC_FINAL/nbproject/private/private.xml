@@ -3,18 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ConexionSQL.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaCitasPac.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaHistorialCita.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaConsultarMedicoHorario.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaCitasPacRecepcionista.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaCitasMed.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaCitasCompletadasPac.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaPacientesMed.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventaPagos.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaPacientesRecp.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/VentanaAgregarReceta.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/registroCitasPanel.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/ventanaPagos.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/registroPacienteCuestionario.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/src/registroPaciente.java</file>
         </group>
     </open-files>
 </project-private>

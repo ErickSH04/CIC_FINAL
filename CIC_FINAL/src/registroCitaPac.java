@@ -788,10 +788,6 @@ private void configurarValidacionPaciente() {
     }
 }
     
-    
-  
-    
-
     private boolean verificarPacienteExiste(Connection conn, String nss) throws SQLException {
     PreparedStatement ps = null;
     ResultSet rs = null;
@@ -860,6 +856,7 @@ private void configurarValidacionPaciente() {
             throw new Exception("Médico no seleccionado");
         }
         String idMedico = medicoId.trim();
+        String estatus = "Activa";
 
         // 4. IMPRIMIR VALORES PARA DEBUG
         System.out.println("Valores a insertar:");
@@ -870,14 +867,14 @@ private void configurarValidacionPaciente() {
         System.out.println("idMedico: " + idMedico);
 
         // 5. INSERTAR CITA CON PREPAREDSTATEMENT
-        String query = "INSERT INTO CITA (idCita, fecha, hora, numeroSeguro, idMedico) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO CITA (idCita, fecha, hora, numeroSeguro, idMedico,estatus) VALUES (?, ?, ?, ?, ?,?)";
         pstmt = conn.prepareStatement(query);
         pstmt.setString(1, idCita);
         pstmt.setString(2, fechaFormato);
         pstmt.setString(3, hora);
         pstmt.setString(4, nss);
         pstmt.setString(5, idMedico);
-
+        pstmt.setString(6, estatus);
         int filasAfectadas = pstmt.executeUpdate();
         System.out.println("Filas afectadas: " + filasAfectadas);
 

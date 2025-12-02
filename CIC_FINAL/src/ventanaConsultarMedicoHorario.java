@@ -64,7 +64,8 @@ public class ventanaConsultarMedicoHorario extends javax.swing.JFrame {
             String especialidad = tblCita.getValueAt(fila, 2).toString();
 
             // abrir ventana
-            new ventanaHoraDisponible(usuarioId, idMedico, nombreMed, especialidad).setVisible(true);
+           // new ventanaHoraDisponible(usuarioId, idMedico, nombreMed, especialidad).setVisible(true);
+           new Disponible(usuarioId, idMedico, nombreMed, especialidad).setVisible(true);
             dispose();
         }
     }
