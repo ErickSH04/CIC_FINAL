@@ -69,7 +69,7 @@ public class ventanaCitasTotales extends javax.swing.JFrame {
         });
 
         lblAtras.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
-        lblAtras.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/calendario.png"))); // NOI18N
+        lblAtras.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/flecha-izquierda (3).png"))); // NOI18N
         lblAtras.setText("Atrás");
         lblAtras.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -95,11 +95,11 @@ public class ventanaCitasTotales extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(lblUsuario)
-                .addGap(168, 168, 168)
+                .addGap(173, 173, 173)
                 .addComponent(lblAtras)
-                .addGap(192, 192, 192)
+                .addGap(187, 187, 187)
                 .addComponent(lblSalir)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(217, Short.MAX_VALUE))
         );
 
         tblCita.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N

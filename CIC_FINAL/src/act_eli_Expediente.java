@@ -249,7 +249,7 @@ public class act_eli_Expediente extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscarKeyPressed
 
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-        ventanaMedico vm = new ventanaMedico(this.usuarioId);
+        ventanaMedico vm = new ventanaMedico(ventanaMedico.getMedico().getCorreo());
         vm.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_lblInicioMouseClicked

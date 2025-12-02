@@ -7,8 +7,8 @@ public class NotificacionCorreo {
 
     public static void enviarCorreo(String destinatario, String asunto, String mensaje) {
         // Credenciales
-        String remitente = "starkinc45@gmail.com"; // Cambia esto por tu correo
-        String clave = "bnjo hrpq gsrb qqpy ";      // Carga desde variable de entorno
+        String remitente = "ericksilva975@gmail.com"; // Cambia esto por tu correo
+        String clave = "mogx hnyu xjjd rfzu";      // Carga desde variable de entorno
 
         if (remitente == null || clave == null) {
             System.err.println("Error: Las credenciales no están configuradas.");
@@ -49,8 +49,8 @@ public class NotificacionCorreo {
 
     public static void enviarCorreo24(String destinatario, String asunto, String mensaje) {
         // Credenciales
-        String remitente = "mariafernandazepedacastaneda@gmail.com"; // Cambia esto por tu correo
-        String clave = "ohwp ypgv gtdf cwxg";     // Carga desde variable de entorno
+        String remitente = "ericksilva975@gmail.com"; // Cambia esto por tu correo
+        String clave = "mogx hnyu xjjd rfzu";     // Carga desde variable de entorno
 
         if (remitente == null || clave == null) {
             System.err.println("Error: Las credenciales no están configuradas.");

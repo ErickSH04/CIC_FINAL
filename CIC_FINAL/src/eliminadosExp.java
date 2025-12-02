@@ -1,5 +1,4 @@
 
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -282,66 +281,18 @@ public class eliminadosExp extends javax.swing.JFrame {
     }
     
     
+    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
+        llenarTabla();
+    }//GEN-LAST:event_btnRefreshMouseClicked
+
     private void tblExpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblExpMouseClicked
-         con = ConexionSQL.ConexionSQLServer();
+        con = ConexionSQL.ConexionSQLServer();
         
         int confirmacion=0;
         int respuesta = 0;
-        
-        respuesta = Integer.parseInt(JOptionPane.showInputDialog("¿Qué operación desea realizar?\n"
-                + "1.- Eliminar\n"
-                + "2.- Consulta detalles del expediente"));
-        
-        
-    System.out.println("Respuesta: " + respuesta);
-    if (respuesta == 1) {//elimina
-        JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer eliminar este expediente?");
-            switch(confirmacion){
-                    
-                case 0:
-                    Object arreglo[] = new Object[3];
-                    int renglon = tblExp.getSelectedRow();
-                    String  motivo= "", fecha = "";
-                    int identificador=0;
-                    if (renglon == -1) {
-                        JOptionPane.showMessageDialog(this, "Seleccione un registro primero.");
-                    return; // Detiene la ejecución del case
-}
-                    for (int i = 0; i < arreglo.length; i++) {
-                        arreglo[i] = tblExp.getValueAt(renglon, i);
-                        
-                    }
 
-                    identificador = Integer.parseInt(arreglo[0].toString());
-                    fecha = arreglo[1].toString();
-                    motivo = arreglo[2].toString();
-                    String inserta = "INSERT INTO expedientes_eliminados\n" +
-                    "SELECT * FROM expediente_clinico\n" +
-                    "where idExp ="+identificador;
-                    String query="delete from expediente_clinico\n" +
-                    "where idExp ="+identificador;
-                    
-                    Statement stmt;
-                try {
-                    stmt = con.createStatement();
-                    stmt.executeUpdate(inserta);
-                    stmt.executeUpdate(query);
-                    JOptionPane.showMessageDialog(this, "Eliminando...");
-                    JOptionPane.showMessageDialog(null, "Expediente eliminado con éxito.");
-                    llenarTabla();
-                } catch (SQLException ex) {
-                    Logger.getLogger(ventanaCitasMed.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                    break;
-                case 1:break; case 2: break;
-            }   
-        }
-        if (respuesta == 2) {//consulta
-            int co=0;
-            
-            JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer consultar este expediente?");
-            switch(co){
-                    
+        confirmacion = (JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer consultar este expediente?"));
+        switch(confirmacion){    
                 case 0:
                     Object arreglo[] = new Object[7];
                     int renglon = tblExp.getSelectedRow();
@@ -365,7 +316,7 @@ public class eliminadosExp extends javax.swing.JFrame {
                     fecha = arreglo[5].toString();
                     motivo = arreglo[6].toString();
                     
-                    ConsultarExp x = new ConsultarExp(nss, this.medico,identificador);
+                    ConsultarExpEliminado x = new ConsultarExpEliminado(nss, this.medico,identificador);
                     x.setVisible(true);
                     this.setVisible(false);
                     break;
@@ -375,12 +326,8 @@ public class eliminadosExp extends javax.swing.JFrame {
         if (respuesta == 3) {
         //no hace nada
         }
-    }
+    
     }//GEN-LAST:event_tblExpMouseClicked
-
-    private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
-        llenarTabla();
-    }//GEN-LAST:event_btnRefreshMouseClicked
 
     private String obtenerFecha() {
         String fecha = "";
@@ -398,7 +345,7 @@ public class eliminadosExp extends javax.swing.JFrame {
 
         query = "select ec.idExp, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, ec.fecha_atencion, ec.motivo_atencion\n" +
             "from PACIENTE pac\n" +
-            "inner join expediente_clinico ec on (ec.nss = pac.numeroSeguro)\n" +
+            "inner join expedientes_eliminados ec on (ec.nss = pac.numeroSeguro)\n" +
             "WHERE pac.nombrePac LIKE '%" + busqueda + "%'";
         try {
             stmt = con.createStatement();
@@ -478,7 +425,7 @@ public class eliminadosExp extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                act_eli_Expediente aee = new act_eli_Expediente(ventanaMedico.getMedico());
+                eliminadosExp aee = new eliminadosExp(ventanaMedico.getMedico());
                 aee.setVisible(true);
             }
         });
