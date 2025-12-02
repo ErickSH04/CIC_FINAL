@@ -43,7 +43,7 @@ public class act_eli_Expediente extends javax.swing.JFrame {
         lblUsuario = new javax.swing.JLabel();
         lblSalir = new javax.swing.JLabel();
         lblInicio = new javax.swing.JLabel();
-        lblAtras = new javax.swing.JLabel();
+        lblEliminados = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblExp = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
@@ -78,12 +78,12 @@ public class act_eli_Expediente extends javax.swing.JFrame {
             }
         });
 
-        lblAtras.setFont(new java.awt.Font("Roboto", 2, 22)); // NOI18N
-        lblAtras.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/flecha-izquierda (3).png"))); // NOI18N
-        lblAtras.setText("Atrás");
-        lblAtras.addMouseListener(new java.awt.event.MouseAdapter() {
+        lblEliminados.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
+        lblEliminados.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/borrar.png"))); // NOI18N
+        lblEliminados.setText("Eliminados");
+        lblEliminados.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lblAtrasMouseClicked(evt);
+                lblEliminadosMouseClicked(evt);
             }
         });
 
@@ -97,7 +97,7 @@ public class act_eli_Expediente extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAtras)
+                    .addComponent(lblEliminados)
                     .addComponent(lblSalir)
                     .addComponent(lblInicio))
                 .addContainerGap(46, Short.MAX_VALUE))
@@ -106,11 +106,11 @@ public class act_eli_Expediente extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(lblUsuario)
-                .addGap(88, 88, 88)
+                .addGap(123, 123, 123)
                 .addComponent(lblInicio)
-                .addGap(126, 126, 126)
-                .addComponent(lblAtras)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 178, Short.MAX_VALUE)
+                .addGap(115, 115, 115)
+                .addComponent(lblEliminados)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 154, Short.MAX_VALUE)
                 .addComponent(lblSalir)
                 .addGap(119, 119, 119))
         );
@@ -217,7 +217,7 @@ public class act_eli_Expediente extends javax.swing.JFrame {
                 .addComponent(btnRefresh)
                 .addGap(37, 37, 37)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(256, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -253,99 +253,6 @@ public class act_eli_Expediente extends javax.swing.JFrame {
         vm.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_lblInicioMouseClicked
-
-    //private void buscarPorFecha() {
-        /*int nDia = cmbDia.getSelectedIndex();
-        int nMes = cmbMes.getSelectedIndex();
-
-        if (nDia == 0 && nMes == 0) {
-            llenarTabla();
-        }
-
-        if ((nDia > 0) && (nMes > 0)) {
-            String buscar = "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "FROM cita cit\n"
-                    + "INNER JOIN paciente pac ON pac.numeroSeguro = cit.numeroSeguro\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico()+ "' \n"
-                    + "  AND MONTH(cit.fecha) = '" + nMes + "' \n"
-                    + "  AND DAY(cit.fecha) = '" + nDia + "';";
-
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-        if ((nDia == 0) && (nMes > 0)) {
-            String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "from cita cit\n"
-                    + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
-                    + "  AND MONTH(cit.fecha) = " + nMes;
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-        if ((nDia > 0) && (nMes == 0)) {
-            String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "from cita cit\n"
-                    + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
-                    + "  AND DAY(cit.fecha) = " + nDia + ";";
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-    }*/
-    private void lblAtrasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAtrasMouseClicked
-        this.dispose();
-        ventanaMedico vm = new ventanaMedico(ventanaMedico.getMedico().getCorreo());
-        vm.setVisible(true);
-    }//GEN-LAST:event_lblAtrasMouseClicked
 
 
     public static ObjetoExpediente crearExp(String fec, int id){
@@ -393,42 +300,19 @@ public class act_eli_Expediente extends javax.swing.JFrame {
     
     
     private void tblExpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblExpMouseClicked
-              con = ConexionSQL.ConexionSQLServer();
+         con = ConexionSQL.ConexionSQLServer();
         
+        int confirmacion=0;
         int respuesta = 0;
+        
         respuesta = Integer.parseInt(JOptionPane.showInputDialog("¿Qué operación desea realizar?\n"
-            + "1.- Actualizar expediente\n"
-            + "2.- Eliminar expediente\n"
-            + "3.- Cancelar operación"));
-
+                + "1.- Eliminar\n"
+                + "2.- Consulta detalles del expediente"));
+        
+        
     System.out.println("Respuesta: " + respuesta);
-    if (respuesta == 1) {//actualiza
-           Object arreglo[] = new Object[7];
-           int renglon = tblExp.getSelectedRow();
-           String fecha="";
-           
-           int identificador=0;
-           Statement stmt;
-           
-            for (int i = 0; i < arreglo.length; i++) {
-                arreglo[i] = tblExp.getValueAt(renglon, i);
-            }
-            
-            identificador = Integer.parseInt(arreglo[0].toString());
-            fecha = arreglo[5].toString();
-            System.out.println("Fecha: "+fecha);
-            
-            ObjetoExpediente o = new ObjetoExpediente();
-            o = crearExp(fecha, identificador);
-            modificarExpediente me = new modificarExpediente(o);
-            me.setVisible(true);
-            this.dispose();
-
-        }
-        if (respuesta == 2) {//elimina
-            int confirmacion=0;
-            
-            JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer borrar este expediente?");
+    if (respuesta == 1) {//elimina
+        JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer eliminar este expediente?");
             switch(confirmacion){
                     
                 case 0:
@@ -448,13 +332,16 @@ public class act_eli_Expediente extends javax.swing.JFrame {
                     identificador = Integer.parseInt(arreglo[0].toString());
                     fecha = arreglo[1].toString();
                     motivo = arreglo[2].toString();
-            
+                    String inserta = "INSERT INTO expedientes_eliminados\n" +
+                    "SELECT * FROM expediente_clinico\n" +
+                    "where idExp ="+identificador;
                     String query="delete from expediente_clinico\n" +
                     "where idExp ="+identificador;
                     
                     Statement stmt;
                 try {
                     stmt = con.createStatement();
+                    stmt.executeUpdate(inserta);
                     stmt.executeUpdate(query);
                     JOptionPane.showMessageDialog(this, "Eliminando...");
                     JOptionPane.showMessageDialog(null, "Expediente eliminado con éxito.");
@@ -464,17 +351,59 @@ public class act_eli_Expediente extends javax.swing.JFrame {
                 }
                     break;
                 case 1:break; case 2: break;
+            }   
+        }
+        if (respuesta == 2) {//consulta
+            int co=0;
+            
+            JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer consultar este expediente?");
+            switch(co){
+                    
+                case 0:
+                    Object arreglo[] = new Object[7];
+                    int renglon = tblExp.getSelectedRow();
+                    String nombre="",apellido1="",apellido2="", nss="", motivo= "", fecha = "";
+                    
+                    int identificador=0;
+                    if (renglon == -1) {
+                        JOptionPane.showMessageDialog(this, "Seleccione un registro primero.");
+                    return; // Detiene la ejecución del case
+}
+                    for (int i = 0; i < arreglo.length; i++) {
+                        arreglo[i] = tblExp.getValueAt(renglon, i);
+                        
+                    }
+
+                    identificador = Integer.parseInt(arreglo[0].toString());
+                    nombre = arreglo[1].toString();
+                    apellido1 = arreglo[2].toString();
+                    apellido2 = arreglo[3].toString();
+                    nss = arreglo[4].toString();
+                    fecha = arreglo[5].toString();
+                    motivo = arreglo[6].toString();
+                    
+                    ConsultarExp x = new ConsultarExp(nss, this.medico,identificador);
+                    x.setVisible(true);
+                    this.setVisible(false);
+                    break;
+                case 1:break; case 2: break;
             }
            
         if (respuesta == 3) {
         //no hace nada
         }
-        }
+    }
     }//GEN-LAST:event_tblExpMouseClicked
 
     private void btnRefreshMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnRefreshMouseClicked
         llenarTabla();
     }//GEN-LAST:event_btnRefreshMouseClicked
+
+    private void lblEliminadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblEliminadosMouseClicked
+        eliminadosExp e = new eliminadosExp(ventanaMedico.getMedico());
+        e.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_lblEliminadosMouseClicked
 
     private String obtenerFecha() {
         String fecha = "";
@@ -584,8 +513,8 @@ public class act_eli_Expediente extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblAtras;
     private javax.swing.JLabel lblBuscar;
+    private javax.swing.JLabel lblEliminados;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblInicio;
     private javax.swing.JLabel lblSalir;

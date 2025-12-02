@@ -493,73 +493,16 @@ public class Expediente_elegido extends javax.swing.JFrame {
         con = ConexionSQL.ConexionSQLServer();
         
         int confirmacion=0;
-    
-        JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer consultar este expediente?");
-            switch(confirmacion){
-                    
-                case 0:
-                    Object arreglo[] = new Object[3];
-                    int renglon = tblExp1.getSelectedRow();
-                    String  motivo= "", fecha = "";
-                    int identificador=0;
-                    if (renglon == -1) {
-                        JOptionPane.showMessageDialog(this, "Seleccione un registro primero.");
-                    return; // Detiene la ejecución del case
-}
-                    /*for (int i = 0; i < arreglo.length; i++) {
-                        arreglo[i] = tblExp1.getValueAt(renglon, i);
-                        
-                    }
-
-                    identificador = Integer.parseInt(arreglo[0].toString());
-                    fecha = arreglo[1].toString();
-                    motivo = arreglo[2].toString();
-            
-                    String query="delete from expediente_clinico\n" +
-                    "where idExp ="+identificador;
-                    
-                    Statement stmt;
-                try {
-                    stmt = con.createStatement();
-                    stmt.executeUpdate(query);
-                    JOptionPane.showMessageDialog(this, "Eliminando...");
-                    JOptionPane.showMessageDialog(null, "Expediente eliminado con éxito.");
-                    llenarTabla();
-                } catch (SQLException ex) {
-                    Logger.getLogger(ventanaCitasMed.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                    break;
-                case 1:break; case 2: break;
-            }
+        int respuesta = 0;
+        
+        respuesta = Integer.parseInt(JOptionPane.showInputDialog("¿Qué operación desea realizar?\n"
+                + "1.- Eliminar\n"
+                + "2.- Consulta detalles del expediente"));
         
         
     System.out.println("Respuesta: " + respuesta);
-    if (respuesta == 1) {//actualiza
-           Object arreglo[] = new Object[3];
-           int renglon = tblExp1.getSelectedRow();
-           String fecha="";
-           
-           int identificador=0;
-           Statement stmt;
-           
-            for (int i = 0; i < arreglo.length; i++) {
-                arreglo[i] = tblExp1.getValueAt(renglon, i);
-            }
-            
-            identificador = Integer.parseInt(arreglo[0].toString());
-            fecha = arreglo[1].toString();
-            
-            ObjetoExpediente o = new ObjetoExpediente();
-            o = crearExp(fecha, identificador);
-            modificarExpediente me = new modificarExpediente(o);
-            me.setVisible(true);
-            this.dispose();
-
-        }
-        if (respuesta == 2) {//elimina
-            int confirmacion=0;
-            
-            JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer borrar este expediente?");
+    if (respuesta == 1) {//elimina
+        JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer eliminar este expediente?");
             switch(confirmacion){
                     
                 case 0:
@@ -579,13 +522,16 @@ public class Expediente_elegido extends javax.swing.JFrame {
                     identificador = Integer.parseInt(arreglo[0].toString());
                     fecha = arreglo[1].toString();
                     motivo = arreglo[2].toString();
-            
+                    String inserta = "INSERT INTO expedientes_eliminados\n" +
+                    "SELECT * FROM expediente_clinico\n" +
+                    "where idExp ="+identificador;
                     String query="delete from expediente_clinico\n" +
                     "where idExp ="+identificador;
                     
                     Statement stmt;
                 try {
                     stmt = con.createStatement();
+                    stmt.executeUpdate(inserta);
                     stmt.executeUpdate(query);
                     JOptionPane.showMessageDialog(this, "Eliminando...");
                     JOptionPane.showMessageDialog(null, "Expediente eliminado con éxito.");
@@ -595,13 +541,42 @@ public class Expediente_elegido extends javax.swing.JFrame {
                 }
                     break;
                 case 1:break; case 2: break;
+            }   
+        }
+        if (respuesta == 2) {//consulta
+            int co=0;
+            
+            JOptionPane.showConfirmDialog(this,"¿Estás seguro de querer consultar este expediente?");
+            switch(co){
+                    
+                case 0:
+                    Object arreglo[] = new Object[3];
+                    int renglon = tblExp1.getSelectedRow();
+                    String  motivo= "", fecha = "";
+                    int identificador=0;
+                    if (renglon == -1) {
+                        JOptionPane.showMessageDialog(this, "Seleccione un registro primero.");
+                    return; // Detiene la ejecución del case
+}
+                    for (int i = 0; i < arreglo.length; i++) {
+                        arreglo[i] = tblExp1.getValueAt(renglon, i);
+                        
+                    }
+
+                    identificador = Integer.parseInt(arreglo[0].toString());
+                    fecha = arreglo[1].toString();
+                    motivo = arreglo[2].toString();
+                    ConsultarExp x = new ConsultarExp(this.paciente, this.medico,identificador);
+                    x.setVisible(true);
+                    this.setVisible(false);
+                    break;
+                case 1:break; case 2: break;
             }
            
         if (respuesta == 3) {
         //no hace nada
         }
     }
-                  */}
     }//GEN-LAST:event_tblExp1MouseClicked
 
     /**
