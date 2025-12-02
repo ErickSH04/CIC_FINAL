@@ -206,7 +206,7 @@ public class registroPaciente extends javax.swing.JFrame {
 
     private void AceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AceptarActionPerformed
         guardarPaciente(correo);
-        registroPacienteCuestionario res = new registroPacienteCuestionario(correo,txtNSS.getText(),this.query);
+        registroPacienteCuestionario res = new registroPacienteCuestionario(correo,txtNSS.getText(),this.query,false);
         res.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_AceptarActionPerformed

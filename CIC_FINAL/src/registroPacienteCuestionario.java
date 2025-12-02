@@ -3,6 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
@@ -21,14 +22,61 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
     private String correo;
     private String nss;
     private String queryusuario;
+    private boolean  modoEdicion;
     
-    public registroPacienteCuestionario(String correo, String nss, String queryusuario) {
+    
+     // Constructor modificado para aceptar modo edición
+    public registroPacienteCuestionario(String correo, String nss, String queryusuario, boolean modoEdicion) {
         initComponents();
         this.setLocationRelativeTo(this);
         this.nss = nss;
         this.correo = correo;
         this.queryusuario = queryusuario;
+        this.modoEdicion = modoEdicion; // Asignar modo edición
         con = ConexionSQL.ConexionSQLServer();
+        
+        // Configurar interfaz según el modo
+        configurarModoEdicion();
+        
+        // Si está en modo edición, cargar los datos existentes
+        if (modoEdicion) {
+            cargarDatosExistentes();
+        }
+    }
+    
+      private void configurarModoEdicion() {
+        if (modoEdicion) {
+            // En modo edición, ocultamos el botón Confirmar y mostramos Editar
+            Aceptar.setVisible(false);
+            btnEditar.setVisible(true);
+            btnCancelar.setText("Volver"); // Cambiar texto del botón cancelar
+        } else {
+            // En modo registro normal, mostramos Confirmar y ocultamos Editar
+            Aceptar.setVisible(true);
+            btnEditar.setVisible(false);
+            btnCancelar.setText("Cancelar");
+        }
+    }
+      
+       // Método para cargar datos existentes desde la base de datos
+    private void cargarDatosExistentes() {
+        String query = "SELECT * FROM preguntas_preliminares WHERE nss = '" + nss + "'";
+        
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            
+            if (rs.next()) {
+                // Cargar los datos en los campos
+                txtNumEmergencia.setText(rs.getString("Contacto_Emergencia"));
+                jcbEnfermedadCronica.setSelectedItem(rs.getString("enfermedad_cronica"));
+                jcbConsumoTabaco.setSelectedItem(rs.getString("Tabaco"));
+                jcbConsumoAlcohol.setSelectedItem(rs.getString("Alcohol"));
+                txtEnfermedadFamiliar.setText(rs.getString("Enfermedad_Familiar"));
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al cargar datos: " + ex.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -55,6 +103,7 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
         jcbConsumoAlcohol = new javax.swing.JComboBox<>();
         jcbEnfermedadCronica = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
+        btnEditar = new javax.swing.JButton();
 
         Aceptar1.setText("Confirmar");
         Aceptar1.addActionListener(new java.awt.event.ActionListener() {
@@ -117,6 +166,13 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
 
         jLabel2.setText("De ser así, ¿cual?");
 
+        btnEditar.setText("Editar");
+        btnEditar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -140,7 +196,7 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel6))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(126, 126, 126)
+                        .addGap(123, 123, 123)
                         .addComponent(txtEnfermedadFamiliar, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(53, 53, 53)
@@ -152,9 +208,10 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addGap(98, 98, 98)
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(Aceptar)
                                     .addComponent(jcbConsumoTabaco, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jcbConsumoAlcohol, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                    .addComponent(jcbConsumoAlcohol, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(Aceptar)
+                                    .addComponent(btnEditar))))))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -198,12 +255,14 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtEnfermedadFamiliar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(Aceptar)
-                    .addComponent(btnCancelar))
-                .addGap(23, 23, 23))
+                    .addComponent(txtEnfermedadFamiliar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnEditar))
+                .addGap(17, 17, 17)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnCancelar)
+                    .addComponent(Aceptar))
+                .addGap(35, 35, 35))
         );
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, 360, 400));
@@ -223,9 +282,10 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void AceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AceptarActionPerformed
-        registrarPaciente(this.correo);
-        loginHospitalNuevo login = new loginHospitalNuevo();
-        login.setVisible(true);
+         registrarPaciente(this.correo);
+        ventanaPagos pagos = new ventanaPagos(this.correo, this.correo, this.nss); // Usar 3 parámetros
+    pagos.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_AceptarActionPerformed
 
     private void Aceptar1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Aceptar1ActionPerformed
@@ -233,6 +293,13 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
     }//GEN-LAST:event_Aceptar1ActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        if (modoEdicion) {
+            this.dispose();
+            // Volver a ventanaPagos
+        ventanaPagos pagos = new ventanaPagos(this.correo, this.correo, this.nss);
+        pagos.setVisible(true);
+        } else {
+        
         String query = "delete from usuario \n"
                 +"where(correo = '" +correo + "');";
    
@@ -248,12 +315,56 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
         this.dispose();
         loginHospitalNuevo login = new loginHospitalNuevo();
         login.setVisible(true);
+        }
+        
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void txtNumEmergenciaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNumEmergenciaActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNumEmergenciaActionPerformed
 
+    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
+ actualizarDatosPaciente();
+    }//GEN-LAST:event_btnEditarActionPerformed
+ // Método para actualizar los datos del paciente
+    private void actualizarDatosPaciente() {
+        String contacto, enfermedad, tabaco, alcohol, enfermedadfam;
+        
+        contacto = txtNumEmergencia.getText().toString();
+        enfermedad = jcbEnfermedadCronica.getSelectedItem().toString();
+        tabaco = jcbConsumoTabaco.getSelectedItem().toString();
+        alcohol = jcbConsumoAlcohol.getSelectedItem().toString();
+        enfermedadfam = txtEnfermedadFamiliar.getText();
+        
+        // Query de actualización en lugar de inserción
+        String query = "UPDATE preguntas_preliminares SET " +
+                      "Contacto_Emergencia = '" + contacto + "', " +
+                      "enfermedad_cronica = '" + enfermedad + "', " +
+                      "Tabaco = '" + tabaco + "', " +
+                      "Alcohol = '" + alcohol + "', " +
+                      "Enfermedad_Familiar = '" + enfermedadfam + "' " +
+                      "WHERE nss = '" + nss + "'";
+        
+        System.out.println(query);
+        
+        try {
+            stmt = con.createStatement();
+            int filasActualizadas = stmt.executeUpdate(query);
+            
+            if (filasActualizadas > 0) {
+                showMessageDialog(null, "Datos actualizados con éxito");
+                // Redirigir a la ventana de pagos o donde corresponda
+                 ventanaPagos pagos = new ventanaPagos(this.correo, this.correo, this.nss);
+                pagos.setVisible(true);
+                this.dispose();
+            } else {
+                showMessageDialog(null, "No se encontraron datos para actualizar");
+            }
+        } catch (SQLException ex) {
+            showMessageDialog(null, "Error al actualizar datos: " + ex.getMessage());
+        }
+    }
+    
  
     private void registrarPaciente(String correo) {
         String contacto, enfermedad, tabaco, alcohol, enfermedadfam;
@@ -282,7 +393,7 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
         try {
              stmt = con.createStatement();
              stmt.executeUpdate(query);
-             showMessageDialog(null,"Paciente agregado con exito");
+             showMessageDialog(null,"✓ Información adicional guardada\n✓ Proceda al pago de la consulta");
         } catch (SQLException ex) {
             showMessageDialog(null,"Error al insertar paciente por "+(ex)+"");
         }
@@ -304,6 +415,7 @@ public class registroPacienteCuestionario extends javax.swing.JFrame {
     private javax.swing.JButton Aceptar;
     private javax.swing.JButton Aceptar1;
     private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnEditar;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
