@@ -375,7 +375,7 @@ public class ventanaPacientesMed extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventanaPacientesMed vcm = new ventanaPacientesMed(usuarioId);
                 vcm.setVisible(true);
             }
         });

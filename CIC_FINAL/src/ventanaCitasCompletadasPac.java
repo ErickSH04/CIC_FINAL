@@ -493,7 +493,7 @@ private void buscarPorFecha() {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventanaCitasCompletadasPac vcm  = new ventanaCitasCompletadasPac(usuarioId);
                 vcm.setVisible(true);
             }
         });

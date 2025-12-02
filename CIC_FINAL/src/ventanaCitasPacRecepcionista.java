@@ -9,14 +9,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.showMessageDialog;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
 
     private static String usuarioId;
     private boolean mensajeModificacionMostrado = false;
-
     //private static Statement stmt;
     //public static Connection con;
 
@@ -28,13 +26,10 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         //con = ConexionSQL.ConexionSQLServer();
         m = (DefaultTableModel) tblCita.getModel();
         lblFecha.setText(obtenerFecha());
-        
         llenarCitas();
         configurarColoresTabla();
-
     }
-    
-   
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -295,7 +290,11 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         Integer dia = cmbDia.getSelectedIndex() > 0 ? cmbDia.getSelectedIndex() : null;
         String nombre = jTextBuscarPac.getText().trim();
         
-        buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+        try {
+            buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_cmbMesItemStateChanged
 
     public String obtenerNSS(String correo) throws ClassNotFoundException {
@@ -357,8 +356,6 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
             vp = new VentanaRecepcion(usuarioId);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
         }
         vp.setVisible(true);
         this.dispose();
@@ -390,7 +387,11 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         Integer dia = cmbDia.getSelectedIndex() > 0 ? cmbDia.getSelectedIndex() : null;
         String nombre = jTextBuscarPac.getText().trim();
 
-        buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+        try {
+            buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_cmbDiaItemStateChanged
 
     
@@ -406,12 +407,11 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
                 + "2.- Reprogramar cita\n"
                 + "3.- Cancelar cita\n"
                 + "4.- Marcar como COMPLETADA\n"
-                + "5.- Pagar cita\n"
-                + "6.- Cancelar operación"));
+                + "5.- Cancelar operación"));
 
         System.out.println("Respuesta: " + respuesta);
         
-        if (respuesta == 1 || respuesta == 2 || respuesta == 3 || respuesta == 4 || respuesta == 5) {
+        if (respuesta == 1 || respuesta == 2 || respuesta == 3 || respuesta == 4) {
             Object arreglo[] = new Object[7];
             int renglon = tblCita.getSelectedRow();
             
@@ -489,11 +489,14 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
                     JOptionPane.YES_NO_OPTION);
                 
                 if (confirmacion == JOptionPane.YES_OPTION) {
+                    // Eliminar la cita existente
                     String eliminacion = "DELETE FROM CITA WHERE idCita = '" + idC + "'";
                     int filasEliminadas = stmt.executeUpdate(eliminacion);
                     if (filasEliminadas > 0) {
                         JOptionPane.showMessageDialog(this, 
                                 "Cita eliminada. Ahora puede crear una nueva cita.");
+                        
+                        // Abrir ventana registroCitaPac
                         registroCitaPac rc = new registroCitaPac(this.usuarioId);
                         rc.setVisible(true);
                     } else {
@@ -530,6 +533,7 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
                 
             } else if (respuesta == 4) {
                 // Marcar como COMPLETADA
+                // Verificar si la cita ya está completada
                 if ("COMPLETADA".equalsIgnoreCase(estatusActual)) {
                     JOptionPane.showMessageDialog(this, "Esta cita ya está marcada como COMPLETADA.");
                     return;
@@ -559,12 +563,6 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, "Error al marcar la cita como COMPLETADA.");
                     }
                 }
-
-            } else if (respuesta == 5) {
-                // Pagar cita
-                VentanaPagosIn vp = new VentanaPagosIn(idC);
-                vp.setVisible(true);
-                this.dispose();
             }
         }
         
@@ -573,12 +571,24 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
     } catch (NumberFormatException ex) {
         // Usuario canceló la operación
-    } catch (ClassNotFoundException ex) {
-        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
-    } finally {
-        try { if (rs != null) rs.close(); } catch (SQLException e) { }
-        try { if (stmt != null) stmt.close(); } catch (SQLException e) { }
-        try { if (conn != null) conn.close(); } catch (SQLException e) { }
+    }   catch (ClassNotFoundException ex) {
+            Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+        try {
+            if (rs != null) rs.close();
+        } catch (SQLException e) {
+            System.err.println("Error cerrando ResultSet: " + e.getMessage());
+        }
+        try {
+            if (stmt != null) stmt.close();
+        } catch (SQLException e) {
+            System.err.println("Error cerrando Statement: " + e.getMessage());
+        }
+        try {
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            System.err.println("Error cerrando Connection: " + e.getMessage());
+        }
      }
     }//GEN-LAST:event_tblCitaMouseClicked
 
@@ -588,7 +598,11 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         Integer dia = cmbDia.getSelectedIndex() > 0 ? cmbDia.getSelectedIndex() : null;
         String nombre = jTextBuscarPac.getText().trim();
         
-        buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+            try {
+                buscarPaciente(mes, dia, nombre.isEmpty() ? null : nombre);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
+            }
       }
     }//GEN-LAST:event_jTextBuscarPacKeyPressed
 
@@ -600,8 +614,7 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         return fecha;
     }
     
-    
-    private void buscarPaciente(Integer mes, Integer dia, String nombrePaciente) {
+    private void buscarPaciente(Integer mes, Integer dia, String nombrePaciente) throws ClassNotFoundException {
     Connection conn = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
@@ -616,7 +629,7 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         m.setRowCount(0);
         
         StringBuilder query = new StringBuilder(
-                 "SELECT cit.fecha, cit.hora, " +
+    "SELECT cit.fecha, cit.hora, " +
     "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
     "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
     "med.Especialidad, pac.numeroSeguro, " +
@@ -625,7 +638,8 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
     "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +  
     "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +
     "WHERE 1=1"
-        );
+);
+
 
         int paramIndex = 1;
         
@@ -662,21 +676,25 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         
         Object R[] = new Object[7];
         while (rs.next()) {
-            R[0] = rs.getObject("fecha");
-            R[1] = rs.getObject("hora");
-            R[2] = rs.getObject("Paciente");
-            R[3] = rs.getObject("Medico");
-            R[4] = rs.getObject("Especialidad");
-            R[5] = rs.getObject("numeroSeguro");
-            R[6] = rs.getObject("estatus");
-            m.addRow(R);
-        }
+    R[0] = rs.getObject("fecha");
+    R[1] = rs.getObject("hora");
+    R[2] = rs.getObject("Paciente");
+    R[3] = rs.getObject("Medico");
+    R[4] = rs.getObject("Especialidad");
+    R[5] = rs.getObject("numeroSeguro");
+    R[6] = rs.getObject("estatus");
+    m.addRow(R);
+}
+
+verificarCitasModificadas();
+
         
     } catch (SQLException ex) {
         System.err.println("Error buscando paciente: " + ex.getMessage());
         ex.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error al buscar citas: " + ex.getMessage());
     } finally {
+        
         try {
             if (rs != null) rs.close();
             if (stmt != null) stmt.close();
@@ -685,11 +703,10 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-}  
+}
     
-   
+    
     public void llenarCitas() throws ClassNotFoundException {
-    
     Connection conn = null;
     Statement stmt = null;
     ResultSet result = null;
@@ -703,7 +720,7 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         
         m.setRowCount(0);
         
-        String query =  "SELECT cit.fecha, cit.hora, " +
+        String query = "SELECT cit.fecha, cit.hora, " +
       "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
       "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
       "med.Especialidad, pac.numeroSeguro, " +
@@ -713,6 +730,7 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
       "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +  
       "ORDER BY cit.fecha, cit.hora";
 
+
         System.out.println("Consulta recepcionista: " + query);
         
         stmt = conn.createStatement();
@@ -720,33 +738,28 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
 
         Object R[] = new Object[7];
         while (result.next()) {
-            R[0] = result.getObject("fecha");
-            R[1] = result.getObject("hora");
-            R[2] = result.getObject("Paciente");
-            R[3] = result.getObject("Medico");
-            R[4] = result.getObject("Especialidad");
-            R[5] = result.getObject("numeroSeguro");
-            R[6] = result.getObject("estatus");
-            m.addRow(R);
-        }
-        
-        verificarCitasModificadas();
+    R[0] = result.getObject("fecha");
+    R[1] = result.getObject("hora");
+    R[2] = result.getObject("Paciente");
+    R[3] = result.getObject("Medico");
+    R[4] = result.getObject("Especialidad");
+    R[5] = result.getObject("numeroSeguro");
+    R[6] = result.getObject("estatus");
+    m.addRow(R);
+}
+
+verificarCitasModificadas();
+
     } catch (SQLException ex) {
         System.err.println("Error llenando citas recepcionista: " + ex.getMessage());
         ex.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error al cargar citas: " + ex.getMessage());
     } finally {
-        try {
-            if (result != null) result.close();
-            if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
+        // Cerrar recursos...
     }
-}
+  }
     
-     private void configurarColoresTabla() {
+    private void configurarColoresTabla() {
     // Renderer para TODA la tabla, usando el estatus de la columna 6
     tblCita.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
         @Override
@@ -810,8 +823,8 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
 
     tblCita.repaint();
 }
-     
-    private void verificarCitasModificadas() {
+
+private void verificarCitasModificadas() {
     if (mensajeModificacionMostrado) return;
 
     int filas = tblCita.getRowCount();
@@ -831,10 +844,10 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         }
     }
 }
-    
-    
-   
 
+    
+    
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -862,15 +875,18 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                try {
-                    ventanaCitasPacRecepcionista vcm = null;
-                    vcm = new ventanaCitasPacRecepcionista(usuarioId);
-                    vcm.setVisible(true);
-                } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                try{
+                 ventanaCitasPacRecepcionista vcm = new ventanaCitasPacRecepcionista("");
+                vcm.setVisible(true);
+               
+                }catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+                    .log(java.util.logging.Level.SEVERE, null, ex);
+               
             }
-        });
+                
+            }    
+                });
     }
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables

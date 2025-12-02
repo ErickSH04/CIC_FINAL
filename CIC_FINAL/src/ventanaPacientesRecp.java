@@ -832,11 +832,18 @@ private void mostrarError(String mensaje) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = null;
-                vcm = new ventanaCitasMed(usuarioId);
+                try{
+                 ventanaPacientesRecp vcm = new ventanaPacientesRecp("");
                 vcm.setVisible(true);
+               
+                }catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+                    .log(java.util.logging.Level.SEVERE, null, ex);
+               
             }
-        });
+                
+            }    
+                });
     }
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables

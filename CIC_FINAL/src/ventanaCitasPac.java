@@ -31,6 +31,10 @@ public class ventanaCitasPac extends javax.swing.JFrame {
         //actualizarCitasPasadas();
         llenarCitas();
         aplicarColoresEstatus();
+        verificarCitasModificadas();
+        // ... después de llenar la tabla
+        
+
         DefaultTableModel model = (DefaultTableModel) tblCita.getModel();
         tblCita.setModel(model);
 
@@ -709,13 +713,13 @@ public class ventanaCitasPac extends javax.swing.JFrame {
     con = ConexionSQL.ConexionSQLServer();
     m.setRowCount(0);
 
+    // Si no hay filtro, recarga todas las citas programadas
     if (cmbMes.getSelectedIndex() == 0 && cmbDia.getSelectedIndex() == 0) {
-        llenarCitas(); // Si no hay filtro, mostrar todas las citas del paciente
+        llenarCitas();
         return;
     }
 
     try {
-        // Obtener número de seguro del paciente logueado
         String obtenerPacienteSQL = "SELECT numeroSeguro FROM PACIENTE WHERE Correo = ?";
         PreparedStatement psPaciente = con.prepareStatement(obtenerPacienteSQL);
         psPaciente.setString(1, this.usuarioId);
@@ -729,18 +733,17 @@ public class ventanaCitasPac extends javax.swing.JFrame {
             return;
         }
 
-        // Construir consulta con filtros
         StringBuilder query = new StringBuilder("""
             SELECT cit.fecha, cit.hora, med.nombreMed, med.Especialidad, cit.estatus
             FROM cita cit 
             INNER JOIN medico med ON med.idMedico = cit.idMedico
             WHERE cit.numeroSeguro = ?
+              AND cit.estatus <> 'Cancelado'
         """);
 
         int nDia = cmbDia.getSelectedIndex();
         int nMes = cmbMes.getSelectedIndex();
 
-        // Agregar filtros de fecha
         if (nMes > 0) {
             query.append(" AND MONTH(cit.fecha) = ").append(nMes);
         }
@@ -765,12 +768,13 @@ public class ventanaCitasPac extends javax.swing.JFrame {
             m.addRow(R);
         }
 
-        // Si no hay resultados con los filtros
         if (m.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, 
                 "No se encontraron citas para la fecha seleccionada.",
                 "Sin resultados", 
                 JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            verificarCitasModificadas();
         }
 
     } catch (SQLException ex) {
@@ -778,6 +782,7 @@ public class ventanaCitasPac extends javax.swing.JFrame {
         ex.printStackTrace();
     }
 }
+
 
  /*private void buscarMedico(String nombre) {
     String busqueda = nombre;
@@ -921,14 +926,14 @@ public class ventanaCitasPac extends javax.swing.JFrame {
   public void llenarCitas() {
     con = ConexionSQL.ConexionSQLServer();
     m.setRowCount(0);
-    
+
     try {
-        // Obtener número de seguro del paciente
+        // Obtener número de seguro del paciente logueado
         String obtenerPacienteSQL = "SELECT numeroSeguro FROM PACIENTE WHERE Correo = ?";
         PreparedStatement psPaciente = con.prepareStatement(obtenerPacienteSQL);
         psPaciente.setString(1, this.usuarioId);
         ResultSet rsPaciente = psPaciente.executeQuery();
-        
+
         String numeroSeguro = "";
         if (rsPaciente.next()) {
             numeroSeguro = rsPaciente.getString("numeroSeguro");
@@ -936,69 +941,71 @@ public class ventanaCitasPac extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "❌ No se encontró el paciente.");
             return;
         }
-        
-        // ✅ SOLO CITAS FUTURAS/VIGENTES
+
+        // Solo citas activas o modificadas (pendientes)
         String query = """
-            SELECT cit.fecha, cit.hora, med.nombreMed, med.Especialidad, cit.estatus
-            FROM cita cit 
+    SELECT 
+                cit.fecha,
+                cit.hora,
+                med.nombreMed,
+                med.Especialidad,
+                cit.estatus
+            FROM cita cit
             INNER JOIN medico med ON med.idMedico = cit.idMedico
             WHERE cit.numeroSeguro = ?
-            AND cit.fecha >= CAST(GETDATE() AS DATE)  -- Solo fechas futuras/hoy
-            AND cit.estatus IN ('Activa', 'Modificado')  -- Solo citas vigentes
-            ORDER BY cit.fecha ASC  -- Orden ascendente (más cercanas primero)
+              AND cit.estatus IN ('Activa', 'Modificado')
+            ORDER BY cit.fecha ASC, cit.hora ASC;
         """;
-        
+
         PreparedStatement ps = con.prepareStatement(query);
         ps.setString(1, numeroSeguro);
         ResultSet result = ps.executeQuery();
 
-        Object R[] = new Object[5];
+        Object fila[] = new Object[6];
         while (result.next()) {
-            R[0] = result.getObject("fecha");
-            R[1] = result.getObject("hora");
-            R[2] = result.getObject("nombreMed");
-            R[3] = result.getObject("Especialidad");
-            R[4] = result.getObject("estatus");
-            m.addRow(R);
+            //fila[0] = result.getObject("idCita");
+            fila[0] = result.getObject("fecha");
+            fila[1] = result.getObject("hora");
+            fila[2] = result.getObject("nombreMed");
+            fila[3] = result.getObject("Especialidad");
+            fila[4] = result.getObject("estatus");
+            m.addRow(fila);
         }
-        
-        // Si no hay citas programadas
-        if (m.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, 
-                "No tienes citas programadas.",
-                "Sin citas programadas", 
-                JOptionPane.INFORMATION_MESSAGE);
-        }
-        
+
     } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al cargar citas programadas: " + ex.getMessage());
-        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "❌ Error al cargar citas activas: " + ex.getMessage());
     }
 }
+
+
 void aplicarColoresEstatus() {
     tblCita.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
         @Override
-        public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
+        public java.awt.Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            // Obtenemos el estatus de la fila actual
-            String estatus = table.getValueAt(row, 4).toString().trim().toLowerCase(); // columna 4 = estatus
+
+            String estatus = table.getValueAt(row, 4).toString().trim().toLowerCase();
 
             // Colores según estatus
             switch (estatus) {
                 case "activa":
-                     setBackground(new java.awt.Color(0, 128,0)); // Verde
+                    setBackground(new java.awt.Color(0, 128, 0));   // Verde
                     setForeground(java.awt.Color.WHITE);
                     break;
                 case "cancelado":
-                    setBackground(new java.awt.Color(204, 0, 0)); // Rojo
+                    setBackground(new java.awt.Color(204, 0, 0));  // Rojo
                     setForeground(java.awt.Color.WHITE);
                     break;
                 case "modificado":
                     setBackground(new java.awt.Color(0, 102, 204)); // Azul
                     setForeground(java.awt.Color.WHITE);
+                    // SOLO cambiar el texto en la columna de Estatus
+                    if (column == 4) {
+                        setText("Activa (Modificado)");
+                    }
                     break;
                 default:
                     setBackground(java.awt.Color.WHITE);
@@ -1006,8 +1013,7 @@ void aplicarColoresEstatus() {
                     break;
             }
 
-            // Si la fila está seleccionada, se puede mantener otro color o ignorar
-           if (isSelected) {
+            if (isSelected) {
                 setBackground(getBackground().darker());
             }
 
@@ -1015,6 +1021,64 @@ void aplicarColoresEstatus() {
         }
     });
 }
+
+
+    private void verificarCitasModificadas() {
+    if (mensajeModificacionMostrado) return;
+
+    int filas = tblCita.getRowCount();
+    for (int i = 0; i < filas; i++) {
+        Object v = tblCita.getValueAt(i, 4);
+        if (v != null && "modificado".equalsIgnoreCase(v.toString().trim())) {
+            mensajeModificacionMostrado = true;
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Una o más de tus citas fueron reasignadas.\n" +
+                    "Tu médico anterior ya no está disponible y se te asignó otro médico.\n" +
+                    "Revisa la fecha, la hora y el nombre del nuevo médico.",
+                    "Cita modificada",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            break;
+        }
+    }
+}
+
+public void modificarCitaAdministrador(int idCita, int nuevoIdMedico, String nuevaFecha, String nuevaHora) {
+    Connection con = ConexionSQL.ConexionSQLServer();
+
+    try {
+        String updateSQL = """
+            UPDATE cita
+            SET 
+                idMedico = ?, 
+                fecha = ?, 
+                hora = ?, 
+                estatus = 'Modificada'
+            WHERE idCita = ?
+        """;
+
+        PreparedStatement ps = con.prepareStatement(updateSQL);
+        ps.setInt(1, nuevoIdMedico);
+        ps.setString(2, nuevaFecha);
+        ps.setString(3, nuevaHora);
+        ps.setInt(4, idCita);
+
+        int resultado = ps.executeUpdate();
+
+        if (resultado > 0) {
+            JOptionPane.showMessageDialog(null, "✔ La cita fue modificada correctamente.");
+        } else {
+            JOptionPane.showMessageDialog(null, "❌ No se encontró la cita para modificar.");
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "⚠ Error al modificar la cita: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
 
     
     public static void main(String args[]) {
@@ -1044,12 +1108,14 @@ void aplicarColoresEstatus() {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
-                vcm.setVisible(true);
+                ventanaCitasPac vcp = new ventanaCitasPac(usuarioId);
+                vcp.setVisible(true);
             }
         });
     }
     private DefaultTableModel m;
+    private boolean mensajeModificacionMostrado = false;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLimpiar;
     private javax.swing.JComboBox<String> cmbDia;

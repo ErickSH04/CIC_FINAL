@@ -460,8 +460,9 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             actualizarMedico(id, dlg);
         }
     } else if (op == 1) { // ELIMINAR
-        eliminarMedicoSeguro(id);
+    manejarEliminacionMedico(id);
     }
+
 
     }//GEN-LAST:event_tblCitaMouseClicked
 
@@ -607,6 +608,65 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         llenarPersonal();
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error al actualizar: " + ex.getMessage());
+    }
+}
+    private void manejarEliminacionMedico(String idMedico) {
+    if (con == null) {
+        JOptionPane.showMessageDialog(this, "Conexión nula.");
+        return;
+    }
+
+    try {
+        // 1) Contar citas "activas" del médico
+        String sqlCount = "SELECT COUNT(*) FROM CITA WHERE idMedico = ?";
+        int total = 0;
+
+        try (PreparedStatement ps = con.prepareStatement(sqlCount)) {
+            ps.setInt(1, Integer.parseInt(idMedico));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    total = rs.getInt(1);
+                }
+            }
+        }
+
+        if (total == 0) {
+            // 2) No tiene citas → mensaje + botones Eliminar / Cancelar
+            Object[] opciones = { "Eliminar", "Cancelar" };
+            int op = JOptionPane.showOptionDialog(
+                    this,
+                    "Este médico no tiene citas disponibles.\n\n¿Deseas eliminarlo?",
+                    "Eliminar médico",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            if (op == 0) {
+                // El usuario confirmó
+                eliminarMedicoSeguro(idMedico);
+            }
+
+        } else {
+            // 3) SÍ tiene citas → abrir diálogo para reasignar
+            ReasignarCitasDialog dlg = new ReasignarCitasDialog(this, con, Integer.parseInt(idMedico));
+            dlg.setVisible(true);
+
+            // Si el diálogo indica que ya reasignó todas las citas,
+            // entonces ahora sí lo puedes eliminar
+            if (dlg.fueReasignadoTodo()) {
+                eliminarMedicoSeguro(idMedico);
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this,
+                "Error verificando citas del médico:\n" + ex.getMessage());
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this,
+                "idMedico no es numérico: " + idMedico);
     }
 }
 
@@ -881,9 +941,28 @@ private void actualizarRecepcionista(String id, EditarPersonaDialog d) {
 }
 
 private void eliminarMedicoSeguro(String id) {
+    if (con == null) {
+        JOptionPane.showMessageDialog(this, "Conexión nula.");
+        return;
+    }
+
+    String correo = null;
+
     try {
         con.setAutoCommit(false);
 
+        // 0) OBTENER CORREO DEL MÉDICO ANTES DE BORRARLO
+        String sqlCorreo = "SELECT Correo FROM medico WHERE idMedico = ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlCorreo)) {
+            ps.setString(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    correo = rs.getString("Correo");
+                }
+            }
+        }
+
+        // 1) BORRAR CITA / EXPEDIENTE / CITAS COMPLETADAS / MÉDICO
         String[] sqls = {
                 "DELETE FROM CITA WHERE idMedico = ?",
                 "DELETE FROM expediente_clinico WHERE id_medico = ?",
@@ -898,17 +977,39 @@ private void eliminarMedicoSeguro(String id) {
             }
         }
 
+        // 2) BORRAR USUARIO RELACIONADO (POR CORREO)
+        int borradosUsuario = 0;
+        if (correo != null && !correo.trim().isEmpty()) {
+            String sqlUsuario = "DELETE FROM usuario WHERE correo = ?";
+            try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
+                ps.setString(1, correo.trim());
+                borradosUsuario = ps.executeUpdate();
+            }
+        }
+
         con.commit();
-        JOptionPane.showMessageDialog(this, "Médico eliminado completamente.");
+
+        JOptionPane.showMessageDialog(this,
+                "Médico eliminado");
+
         llenarPersonal();
 
     } catch (SQLException ex) {
         try { con.rollback(); } catch (Exception ignored) {}
-        JOptionPane.showMessageDialog(this, "Error eliminando médico:\n" + ex.getMessage());
+        JOptionPane.showMessageDialog(this, "Error eliminando médico/usuario:\n" + ex.getMessage());
+    } finally {
+        try { con.setAutoCommit(true); } catch (Exception ignored) {}
     }
 }
 
+
+
 private void eliminarRecepcionista(String id) {
+    if (con == null) {
+        JOptionPane.showMessageDialog(this, "Conexión nula.");
+        return;
+    }
+
     int conf = JOptionPane.showConfirmDialog(
             this,
             "¿Eliminar este recepcionista?",
@@ -917,16 +1018,54 @@ private void eliminarRecepcionista(String id) {
     );
     if (conf != JOptionPane.YES_OPTION) return;
 
-    String sql = "DELETE FROM recepcionista WHERE idRecepcionista=?";
-    try (PreparedStatement ps = con.prepareStatement(sql)) {
-        ps.setString(1, id);
-        ps.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Recepcionista eliminado.");
+    String correo = null;
+
+    try {
+        con.setAutoCommit(false);
+
+        // 0) OBTENER CORREO DEL RECEPCIONISTA
+        String sqlCorreo = "SELECT correo FROM recepcionista WHERE idRecepcionista = ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlCorreo)) {
+            ps.setString(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    correo = rs.getString("correo");
+                }
+            }
+        }
+
+        // 1) BORRAR RECEPCIONISTA
+        String sqlDelRecep = "DELETE FROM recepcionista WHERE idRecepcionista = ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlDelRecep)) {
+            ps.setString(1, id);
+            ps.executeUpdate();
+        }
+
+        // 2) BORRAR USUARIO RELACIONADO (POR CORREO)
+        int borradosUsuario = 0;
+        if (correo != null && !correo.trim().isEmpty()) {
+            String sqlUsuario = "DELETE FROM usuario WHERE correo = ?";
+            try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
+                ps.setString(1, correo.trim());
+                borradosUsuario = ps.executeUpdate();
+            }
+        }
+
+        con.commit();
+
+        JOptionPane.showMessageDialog(this,
+                "Recepcionista eliminado");
+
         llenarPersonal();
+
     } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error al eliminar recepcionista: " + ex.getMessage());
+        try { con.rollback(); } catch (Exception ignored) {}
+        JOptionPane.showMessageDialog(this, "Error eliminando recepcionista/usuario:\n" + ex.getMessage());
+    } finally {
+        try { con.setAutoCommit(true); } catch (Exception ignored) {}
     }
 }
+
 
 
 
@@ -959,7 +1098,7 @@ private void eliminarRecepcionista(String id) {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
+                ventanaAdmin vcm = new ventanaAdmin(usuarioId);
                 vcm.setVisible(true);
             }
         });
