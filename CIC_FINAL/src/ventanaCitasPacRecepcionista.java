@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
 
     private static String usuarioId;
+    private boolean mensajeModificacionMostrado = false;
     //private static Statement stmt;
     //public static Connection con;
 
@@ -628,16 +629,17 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         m.setRowCount(0);
         
         StringBuilder query = new StringBuilder(
-            "SELECT cit.fecha, cit.hora, " +
-            "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
-            "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
-            "med.Especialidad, pac.numeroSeguro, " +
-            "CASE WHEN cit.estatus IS NULL THEN 'ACTIVA' ELSE cit.estatus END as estatus " +
-            "FROM CITA cit " +  
-            "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +  
-            "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +
-            "WHERE 1=1"
-        );
+    "SELECT cit.fecha, cit.hora, " +
+    "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
+    "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
+    "med.Especialidad, pac.numeroSeguro, " +
+    "CASE WHEN cit.estatus IS NULL THEN 'Activa' ELSE cit.estatus END as estatus " +
+    "FROM CITA cit " +  
+    "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +  
+    "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +
+    "WHERE 1=1"
+);
+
 
         int paramIndex = 1;
         
@@ -674,15 +676,18 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         
         Object R[] = new Object[7];
         while (rs.next()) {
-            R[0] = rs.getObject("fecha");
-            R[1] = rs.getObject("hora");
-            R[2] = rs.getObject("Paciente");
-            R[3] = rs.getObject("Medico");
-            R[4] = rs.getObject("Especialidad");
-            R[5] = rs.getObject("numeroSeguro");
-            R[6] = rs.getObject("estatus");
-            m.addRow(R);
-        }
+    R[0] = rs.getObject("fecha");
+    R[1] = rs.getObject("hora");
+    R[2] = rs.getObject("Paciente");
+    R[3] = rs.getObject("Medico");
+    R[4] = rs.getObject("Especialidad");
+    R[5] = rs.getObject("numeroSeguro");
+    R[6] = rs.getObject("estatus");
+    m.addRow(R);
+}
+
+verificarCitasModificadas();
+
         
     } catch (SQLException ex) {
         System.err.println("Error buscando paciente: " + ex.getMessage());
@@ -716,14 +721,15 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
         m.setRowCount(0);
         
         String query = "SELECT cit.fecha, cit.hora, " +
-              "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
-              "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
-              "med.Especialidad, pac.numeroSeguro, " +
-              "CASE WHEN cit.estatus IS NULL THEN 'ACTIVA' ELSE cit.estatus END as estatus " + 
-              "FROM CITA cit " +
-              "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
-              "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +  
-              "ORDER BY cit.fecha, cit.hora";
+      "CONCAT(pac.nombrePac, ' ', pac.apellido1) as Paciente, " +
+      "CONCAT(med.nombreMed, ' ', med.apellido1) as Medico, " +
+      "med.Especialidad, pac.numeroSeguro, " +
+      "CASE WHEN cit.estatus IS NULL THEN 'Activa' ELSE cit.estatus END as estatus " + 
+      "FROM CITA cit " +
+      "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+      "INNER JOIN MEDICO med ON CAST(med.idMedico AS VARCHAR) = cit.idMedico " +  
+      "ORDER BY cit.fecha, cit.hora";
+
 
         System.out.println("Consulta recepcionista: " + query);
         
@@ -732,15 +738,18 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
 
         Object R[] = new Object[7];
         while (result.next()) {
-            R[0] = result.getObject("fecha");
-            R[1] = result.getObject("hora");
-            R[2] = result.getObject("Paciente");
-            R[3] = result.getObject("Medico");
-            R[4] = result.getObject("Especialidad");
-            R[5] = result.getObject("numeroSeguro");
-            R[6] = result.getObject("estatus"); // 
-            m.addRow(R);
-        }
+    R[0] = result.getObject("fecha");
+    R[1] = result.getObject("hora");
+    R[2] = result.getObject("Paciente");
+    R[3] = result.getObject("Medico");
+    R[4] = result.getObject("Especialidad");
+    R[5] = result.getObject("numeroSeguro");
+    R[6] = result.getObject("estatus");
+    m.addRow(R);
+}
+
+verificarCitasModificadas();
+
     } catch (SQLException ex) {
         System.err.println("Error llenando citas recepcionista: " + ex.getMessage());
         ex.printStackTrace();
@@ -751,41 +760,92 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
   }
     
     private void configurarColoresTabla() {
-    // Configurar el renderer personalizado para la columna de Estatus (columna 6)
-    tblCita.getColumnModel().getColumn(6).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+    // Renderer para TODA la tabla, usando el estatus de la columna 6
+    tblCita.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
         @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            
+        public java.awt.Component getTableCellRendererComponent(
+                javax.swing.JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+
             java.awt.Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            if (value != null) {
-                String estatus = value.toString().toUpperCase();
-                
-                if (estatus.equals("ACTIVA")) {
-                    cell.setBackground(new java.awt.Color(144, 238, 144)); // Verde claro
+
+            Object estatusObj = table.getValueAt(row, 6);
+            String estatus = estatusObj != null ? estatusObj.toString().trim().toLowerCase() : "";
+
+            switch (estatus) {
+                case "activa":
+                    cell.setBackground(new java.awt.Color(144, 238, 144)); // verde claro
                     cell.setForeground(java.awt.Color.BLACK);
-                } else if (estatus.equals("CANCELADA")) {
-                    cell.setBackground(new java.awt.Color(255, 182, 193)); // Rojo claro
+                    break;
+
+                case "cancelada":
+                case "cancelado":
+                    cell.setBackground(new java.awt.Color(255, 182, 193)); // rosa/rojo claro
                     cell.setForeground(java.awt.Color.BLACK);
-                } else if (estatus.equals("COMPLETADA")) {
-                    cell.setBackground(new java.awt.Color(173, 216, 230)); // Azul claro
+                    break;
+
+                case "modificado":
+                case "modificada":
+                    cell.setBackground(new java.awt.Color(173, 216, 230)); // azul claro
                     cell.setForeground(java.awt.Color.BLACK);
-                } else {
+                    if (column == 6) {
+                        setText("Activa (Modificada)");
+                    }
+                    break;
+
+                case "completada":
+                case "completado":
+                    cell.setBackground(new java.awt.Color(224, 224, 224)); // gris claro
+                    cell.setForeground(java.awt.Color.BLACK);
+                    break;
+
+                default:
                     cell.setBackground(java.awt.Color.WHITE);
                     cell.setForeground(java.awt.Color.BLACK);
-                }
-            } else {
-                cell.setBackground(java.awt.Color.WHITE);
-                cell.setForeground(java.awt.Color.BLACK);
+                    break;
             }
-            
+
+            if (isSelected) {
+                cell.setBackground(cell.getBackground().darker());
+            }
+
             return cell;
         }
     });
-    
+
     tblCita.setDefaultEditor(Object.class, null);
+
+    javax.swing.table.JTableHeader header = tblCita.getTableHeader();
+    header.setBackground(new java.awt.Color(224, 224, 224));
+    header.setForeground(java.awt.Color.BLACK);
+    header.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+    header.setOpaque(false);
+
+    tblCita.repaint();
 }
+
+private void verificarCitasModificadas() {
+    if (mensajeModificacionMostrado) return;
+
+    int filas = tblCita.getRowCount();
+    for (int i = 0; i < filas; i++) {
+        Object v = tblCita.getValueAt(i, 6); // columna estatus
+        if (v != null && "modificado".equalsIgnoreCase(v.toString().trim())) {
+            mensajeModificacionMostrado = true;
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Una o más citas fueron modificadas.\n" +
+                    "Revisa fecha, hora y médico asignado.",
+                    "Citas modificadas",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            break;
+        }
+    }
+}
+
+    
     
     
     public static void main(String args[]) {

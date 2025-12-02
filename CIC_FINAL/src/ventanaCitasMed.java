@@ -304,91 +304,74 @@ public class ventanaCitasMed extends javax.swing.JFrame {
     }//GEN-LAST:event_lblInicioMouseClicked
 
     private void buscarPorFecha() {
-        int nDia = cmbDia.getSelectedIndex();
-        int nMes = cmbMes.getSelectedIndex();
+    int nDia = cmbDia.getSelectedIndex();
+    int nMes = cmbMes.getSelectedIndex();
 
-        if (nDia == 0 && nMes == 0) {
-            llenarCitas();
-        }
-
-        if ((nDia > 0) && (nMes > 0)) {
-            String buscar = "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "FROM cita cit\n"
-                    + "INNER JOIN paciente pac ON pac.numeroSeguro = cit.numeroSeguro\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
-                    + "  AND MONTH(cit.fecha) = '" + nMes + "' \n"
-                    + "  AND DAY(cit.fecha) = '" + nDia + "';";
-
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-        if ((nDia == 0) && (nMes > 0)) {
-            String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "from cita cit\n"
-                    + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
-                    + "  AND MONTH(cit.fecha) = " + nMes;
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
-        if ((nDia > 0) && (nMes == 0)) {
-            String buscar = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                    + "from cita cit\n"
-                    + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' \n"
-                    + "  AND DAY(cit.fecha) = " + nDia + ";";
-            try {
-                stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(buscar);
-                Object R[] = new Object[7];
-                m.setRowCount(0);
-                while (rs.next()) {
-                    R[0] = rs.getObject("fecha");
-                    R[1] = rs.getObject("hora");
-                    R[2] = rs.getObject("nombrePac");
-                    R[3] = rs.getObject("apellido1");
-                    R[4] = rs.getObject("apellido2");
-                    R[5] = rs.getObject("numeroSeguro");
-                    R[6] = rs.getObject("estatus");
-                    m.addRow(R);
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
+    if (nDia == 0 && nMes == 0) {
+        llenarCitas();
+        return;
     }
+
+    try {
+        stmt = con.createStatement();
+        ResultSet rs;
+        Object R[] = new Object[7];
+        m.setRowCount(0);
+
+        // Día y mes
+        if (nDia > 0 && nMes > 0) {
+            String buscar =
+                "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus " +
+                "FROM CITA cit " +
+                "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+                "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' " +
+                "  AND MONTH(cit.fecha) = " + nMes + " " +
+                "  AND DAY(cit.fecha) = " + nDia + " " +
+                "  AND (cit.estatus IS NULL OR UPPER(cit.estatus) IN ('ACTIVA','MODIFICADA'))";
+
+            rs = stmt.executeQuery(buscar);
+        }
+        // Solo mes
+        else if (nDia == 0 && nMes > 0) {
+            String buscar =
+                "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus " +
+                "FROM CITA cit " +
+                "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+                "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' " +
+                "  AND MONTH(cit.fecha) = " + nMes + " " +
+                "  AND (cit.estatus IS NULL OR UPPER(cit.estatus) IN ('ACTIVA','MODIFICADA'))";
+
+            rs = stmt.executeQuery(buscar);
+        }
+        // Solo día
+        else { // nDia > 0 && nMes == 0
+            String buscar =
+                "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus " +
+                "FROM CITA cit " +
+                "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+                "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' " +
+                "  AND DAY(cit.fecha) = " + nDia + " " +
+                "  AND (cit.estatus IS NULL OR UPPER(cit.estatus) IN ('ACTIVA','MODIFICADA'))";
+
+            rs = stmt.executeQuery(buscar);
+        }
+
+        while (rs.next()) {
+            R[0] = rs.getObject("fecha");
+            R[1] = rs.getObject("hora");
+            R[2] = rs.getObject("nombrePac");
+            R[3] = rs.getObject("apellido1");
+            R[4] = rs.getObject("apellido2");
+            R[5] = rs.getObject("numeroSeguro");
+            R[6] = rs.getObject("estatus");
+            m.addRow(R);
+        }
+
+    } catch (SQLException ex) {
+        System.out.println(ex.getMessage());
+    }
+}
+
     private void lblCitaCompletadaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblCitaCompletadaMouseClicked
         ventanaCitasCompletadasMed cc = new ventanaCitasCompletadasMed(this.medico);
         cc.setVisible(true);
@@ -420,57 +403,89 @@ public class ventanaCitasMed extends javax.swing.JFrame {
                 + "5.- Cancelar operación"));
 
         System.out.println("Respuesta: " + respuesta);
-        if (respuesta == 1) {
-            Object arreglo[] = new Object[6];
-            int renglon = tblCita.getSelectedRow();
-            String nombre = "", fecha = "", hora = "", apellido1 = "", apellido2 = "", nss = "";
+      if (respuesta == 1) {
+    con = ConexionSQL.ConexionSQLServer();  // por si acaso
 
-            for (int i = 0; i < arreglo.length; i++) {
-                arreglo[i] = tblCita.getValueAt(renglon, i);
-            }
+    Object arreglo[] = new Object[7];
+    int renglon = tblCita.getSelectedRow();
 
-            fecha = arreglo[0].toString();
-            hora = arreglo[1].toString();
-            nombre = arreglo[2].toString();
-            apellido1 = arreglo[3].toString();
-            apellido2 = arreglo[4].toString();
-            nss = arreglo[5].toString();
+    if (renglon == -1) {
+        JOptionPane.showMessageDialog(this, "Selecciona una cita primero.");
+        return;
+    }
 
-            String buscarIdCita = "select cit.idCita\n"
-                    + "from cita cit\n"
-                    + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                    + "where cit.hora =" + "'" + hora + "' AND cit.fecha =" + "'" + fecha + "' AND cit.numeroSeguro = '" + nss + "';";
-            System.out.println(buscarIdCita);
-            String idC = "";
-            ResultSet rs;
-            try {
-                stmt = con.createStatement();
-                rs = stmt.executeQuery(buscarIdCita);
-                while (rs.next()) {
-                    idC = rs.getString("idCita");
-                    System.out.println("idCita: " + idC);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(ventanaCitasMed.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    String fecha = "", hora = "", nss = "";
 
-            String bitacora = "INSERT INTO CitasCompletadas (idCita, fecha, hora, numeroSeguro, idMedico)\n"
-                    + "SELECT idCita, fecha, hora, numeroSeguro, idMedico\n"
-                    + "FROM cita\n"
-                    + "WHERE idCita =" + "'" + idC + "';";
+    // tomar los datos de la tabla
+    for (int i = 0; i < arreglo.length; i++) {
+        arreglo[i] = tblCita.getValueAt(renglon, i);
+    }
 
-            String eliminacion = "DELETE FROM CITA\n"
-                    + "WHERE idCita=" + "'" + idC + "';";
+    fecha = arreglo[0].toString();   // columna Fecha
+    hora  = arreglo[1].toString();   // columna Hora
+    nss   = arreglo[5].toString();   // columna numeroSeguro
 
-            try {
-                stmt.executeUpdate(bitacora);
-                stmt.executeUpdate(eliminacion);
-            } catch (SQLException ex) {
-                Logger.getLogger(ventanaCitasMed.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            showMessageDialog(null, "Cita completada con exito");
-            llenarCitas();
+    // buscar idCita en base a fecha, hora y nss
+    String buscarIdCita =
+        "SELECT cit.idCita " +
+        "FROM CITA cit " +
+        "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+        "WHERE cit.hora = '" + hora + "' " +
+        "  AND cit.fecha = '" + fecha + "' " +
+        "  AND cit.numeroSeguro = '" + nss + "';";
+
+    String idC = "";
+    ResultSet rs = null;
+
+    try {
+        stmt = con.createStatement();
+
+        // 1) Obtener idCita
+        rs = stmt.executeQuery(buscarIdCita);
+        if (rs.next()) {
+            idC = rs.getString("idCita");
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontró la cita en la base de datos.");
+            return;
         }
+        rs.close();
+
+        // 2) Actualizar estatus en tabla CITA
+        String actualizar =
+            "UPDATE CITA SET estatus = 'COMPLETADA' " +
+            "WHERE idCita = '" + idC + "'";
+        stmt.executeUpdate(actualizar);
+
+        // 3) Insertar en tabla CitasCompletadas SOLO si no existe ya (para evitar el PK duplicado)
+        String existe =
+            "SELECT COUNT(*) AS total FROM CitasCompletadas WHERE idCita = '" + idC + "'";
+        ResultSet rs2 = stmt.executeQuery(existe);
+        int total = 0;
+        if (rs2.next()) {
+            total = rs2.getInt("total");
+        }
+        rs2.close();
+
+        if (total == 0) {
+            String insertarHist =
+                "INSERT INTO CitasCompletadas (idCita, fecha, hora, numeroSeguro, idMedico) " +
+                "SELECT idCita, fecha, hora, numeroSeguro, idMedico " +
+                "FROM CITA " +
+                "WHERE idCita = '" + idC + "'";
+            stmt.executeUpdate(insertarHist);
+        }
+
+        JOptionPane.showMessageDialog(this, "Cita completada con éxito.");
+        // esto refresca la tabla de citas programadas y ya no te muestra la completada
+        llenarCitas();
+
+    } catch (SQLException ex) {
+        Logger.getLogger(ventanaCitasMed.class.getName()).log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(this, "Error al completar la cita: " + ex.getMessage());
+    }
+}
+
+
         if (respuesta == 2) {
             Object arreglo[] = new Object[6];
             int renglon = tblCita.getSelectedRow();
@@ -628,67 +643,72 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         return fecha;
     }
 
-    private void buscarPaciente(String nombre) {
-        String busqueda = nombre;
-        String query;
-        con = ConexionSQL.ConexionSQLServer();
-        ResultSet rs;
-        m.setRowCount(0);
+   private void buscarPaciente(String nombre) {
+    String busqueda = nombre;
+    con = ConexionSQL.ConexionSQLServer();
+    ResultSet rs;
+    m.setRowCount(0);
 
-        query = "select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-                + "from cita cit\n"
-                + "inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-                + "WHERE pac.nombrePac LIKE '%" + busqueda + "%'";
-        try {
-            stmt = con.createStatement();
-            rs = stmt.executeQuery(query);
-            Object R[] = new Object[7];
+    String query =
+        "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus " +
+        "FROM CITA cit " +
+        "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+        "WHERE pac.nombrePac LIKE '%" + busqueda + "%' " +
+        "  AND (cit.estatus IS NULL OR UPPER(cit.estatus) IN ('ACTIVA','MODIFICADA'))";
 
-            while (rs.next()) {
-                R[0] = rs.getObject("fecha");
-                R[1] = rs.getObject("hora");
-                R[2] = rs.getObject("nombrePac");
-                R[3] = rs.getObject("apellido1");
-                R[4] = rs.getObject("apellido2");
-                R[5] = rs.getObject("numeroSeguro");
-                R[6] = rs.getObject("estatus");
-                m.addRow(R);
-            }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+    try {
+        stmt = con.createStatement();
+        rs = stmt.executeQuery(query);
+        Object R[] = new Object[7];
+
+        while (rs.next()) {
+            R[0] = rs.getObject("fecha");
+            R[1] = rs.getObject("hora");
+            R[2] = rs.getObject("nombrePac");
+            R[3] = rs.getObject("apellido1");
+            R[4] = rs.getObject("apellido2");
+            R[5] = rs.getObject("numeroSeguro");
+            R[6] = rs.getObject("estatus");
+            m.addRow(R);
         }
+    } catch (SQLException ex) {
+        System.out.println(ex.getMessage());
     }
+}
 
-    public void llenarCitas() {
-        con = ConexionSQL.ConexionSQLServer();
-        m.setRowCount(0);
-        
-        try {
 
-            stmt = con.createStatement();
-            String query="select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-            +"from cita cit\n"
-            +"inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-            +"where cit.idMedico="+"'"  +this.medico.getIdMedico()+"'\n"
-            +"ORDER BY cit.fecha";
-            
-            ResultSet result = stmt.executeQuery(query);
+   public void llenarCitas() {
+    con = ConexionSQL.ConexionSQLServer();
+    m.setRowCount(0);
+    
+    try {
+        stmt = con.createStatement();
+        String query =
+            "SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus " +
+            "FROM CITA cit " +
+            "INNER JOIN PACIENTE pac ON pac.numeroSeguro = cit.numeroSeguro " +
+            "WHERE cit.idMedico = '" + this.medico.getIdMedico() + "' " +
+            "  AND (cit.estatus IS NULL OR UPPER(cit.estatus) IN ('ACTIVA','MODIFICADA')) " +
+            "ORDER BY cit.fecha";
 
-            Object R[] = new Object[7];
-            while (result.next()) {
-                R[0] = result.getObject("fecha");
-                R[1] = result.getObject("hora");
-                R[2] = result.getObject("nombrePac");
-                R[3] = result.getObject("apellido1");
-                R[4] = result.getObject("apellido2");
-                R[5] = result.getObject("numeroSeguro");
-                R[6] = result.getObject("estatus");
-                m.addRow(R);
-            }
-        } catch (SQLException ex) {
-            java.util.logging.Logger.getLogger(ventanaCitasMed.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        ResultSet result = stmt.executeQuery(query);
+
+        Object R[] = new Object[7];
+        while (result.next()) {
+            R[0] = result.getObject("fecha");
+            R[1] = result.getObject("hora");
+            R[2] = result.getObject("nombrePac");
+            R[3] = result.getObject("apellido1");
+            R[4] = result.getObject("apellido2");
+            R[5] = result.getObject("numeroSeguro");
+            R[6] = result.getObject("estatus");
+            m.addRow(R);
         }
+    } catch (SQLException ex) {
+        java.util.logging.Logger.getLogger(ventanaCitasMed.class.getName())
+                .log(java.util.logging.Level.SEVERE, null, ex);
     }
+}
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
