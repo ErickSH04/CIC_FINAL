@@ -551,13 +551,20 @@ public class ventaPagos extends javax.swing.JFrame {
     }//GEN-LAST:event_txtBuscarKeyReleased
    
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-        try {
-            VentanaRecepcion vr = new VentanaRecepcion(this.usuarioId);
-            vr.setVisible(true);
-            this.dispose();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ventaPagos.class.getName()).log(Level.SEVERE, null, ex);
-        }
+         try {
+        VentanaRecepcion vp = new VentanaRecepcion(usuarioId);
+        vp.setVisible(true);
+        this.dispose();
+    } catch (ClassNotFoundException | SQLException ex) {
+        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+              .log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(
+                this,
+                "Error al abrir la ventana de inicio:\n" + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
     }//GEN-LAST:event_lblInicioMouseClicked
     
     private void tblCitaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCitaMouseClicked

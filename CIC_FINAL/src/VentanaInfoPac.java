@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class VentanaInfoPac extends javax.swing.JFrame {
 
@@ -224,14 +225,20 @@ public class VentanaInfoPac extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-        VentanaRecepcion vr = null;
-        try {
-            vr = new VentanaRecepcion(usuarioId);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(VentanaInfoPac.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        vr.setVisible(true);
+         try {
+        VentanaRecepcion vp = new VentanaRecepcion(usuarioId);
+        vp.setVisible(true);
         this.dispose();
+    } catch (ClassNotFoundException | SQLException ex) {
+        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+              .log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(
+                this,
+                "Error al abrir la ventana de inicio:\n" + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
     }//GEN-LAST:event_lblInicioMouseClicked
 
     public void llenarDatos() {

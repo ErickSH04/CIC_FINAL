@@ -302,14 +302,20 @@ public class ventanaPacientesRecp extends javax.swing.JFrame {
 }
     
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-        VentanaRecepcion vm = null;
-        try {
-            vm = new VentanaRecepcion(this.usuarioId);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ventanaPacientesRecp.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        vm.setVisible(true);
+         try {
+        VentanaRecepcion vp = new VentanaRecepcion(usuarioId);
+        vp.setVisible(true);
         this.dispose();
+    } catch (ClassNotFoundException | SQLException ex) {
+        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+              .log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(
+                this,
+                "Error al abrir la ventana de inicio:\n" + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
     }//GEN-LAST:event_lblInicioMouseClicked
     
     private void mostrarMenuContextual(int fila, int x, int y) {

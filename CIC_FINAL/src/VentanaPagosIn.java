@@ -721,13 +721,20 @@ private void limpiarCampos() {
     }//GEN-LAST:event_lblSalirMouseClicked
    
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-        try {
-            VentanaRecepcion vr = new VentanaRecepcion(this.usuarioId);
-            vr.setVisible(true);
-            this.dispose();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ventaPagos.class.getName()).log(Level.SEVERE, null, ex);
-        }
+         try {
+        VentanaRecepcion vp = new VentanaRecepcion(usuarioId);
+        vp.setVisible(true);
+        this.dispose();
+    } catch (ClassNotFoundException | SQLException ex) {
+        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+              .log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(
+                this,
+                "Error al abrir la ventana de inicio:\n" + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
     }//GEN-LAST:event_lblInicioMouseClicked
 
     private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
@@ -773,37 +780,18 @@ private boolean validarCVV(String cvv) {
     
 
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VentanaPaciente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VentanaPaciente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VentanaPaciente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VentanaPaciente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    /* Set the Nimbus look and feel */
+    // ... todo el bloque generado por NetBeans se queda igual ...
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(usuarioId);
-                vcm.setVisible(true);
-            }
-        });
-    }
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            // Si solo quieres probar la ventana, puedes pasar un usuario dummy
+            VentanaPagosIn v = new VentanaPagosIn("usuarioPrueba");
+            v.setVisible(true);
+        }
+    });
+}
+
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField TextCVV;

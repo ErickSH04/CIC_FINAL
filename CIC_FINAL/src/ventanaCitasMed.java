@@ -15,22 +15,26 @@ import javax.swing.table.DefaultTableModel;
 
 public class ventanaCitasMed extends javax.swing.JFrame {
     
+   
     private medico medico;
     private static Statement stmt;
     public static Connection con;
     private static Paciente paciente;
-    
-    public ventanaCitasMed(String medico) {
-        this.medico = ventanaMedico.getMedico();
+
+    // CAMBIA ESTE CONSTRUCTOR:
+    public ventanaCitasMed(medico medico) {
+        this.medico = medico;  // Usas el que te mandan
         initComponents();
         setSize(1200,800);
         this.setLocationRelativeTo(this);
         con = ConexionSQL.ConexionSQLServer();
         m = (DefaultTableModel) tblCita.getModel();
         lblFecha.setText(obtenerFecha());
-        Paciente paciente = new Paciente();
+        paciente = new Paciente();   // quita el "Paciente paciente = ..." local
         llenarCitas();
     }
+
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -746,11 +750,12 @@ public class ventanaCitasMed extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ventanaCitasMed vcm = new ventanaCitasMed(ventanaMedico.getMedico());
-                vcm.setVisible(true);
-            }
-        });
+    public void run() {
+        ventanaCitasMed vcm = new ventanaCitasMed(ventanaMedico.getMedico());
+        vcm.setVisible(true);
+    }
+});
+
     }
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables

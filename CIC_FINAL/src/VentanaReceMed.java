@@ -11,6 +11,7 @@ public class VentanaReceMed extends javax.swing.JFrame {
     private String usuarioId;
     private static Connection con;
     private static Statement stmt;
+    
     //private static String fecha;
 
     public VentanaReceMed() {
@@ -240,9 +241,12 @@ public class VentanaReceMed extends javax.swing.JFrame {
     }//GEN-LAST:event_lblInicioMouseClicked
 
     private void jLabelAgregarRecetaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelAgregarRecetaMouseClicked
-         VentanaAgregarReceta ventanaAgregar = new VentanaAgregarReceta(usuarioId);
-         ventanaAgregar.setVisible(true);
-         this.dispose();
+         VentanaAgregarReceta ventanaAgregar = new VentanaAgregarReceta(
+        ventanaCitasMed.getPaciente(),
+        ventanaMedico.getMedico()
+    );
+    ventanaAgregar.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jLabelAgregarRecetaMouseClicked
 
    

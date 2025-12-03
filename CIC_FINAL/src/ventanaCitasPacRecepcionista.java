@@ -351,14 +351,20 @@ public class ventanaCitasPacRecepcionista extends javax.swing.JFrame {
   
 
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
-         VentanaRecepcion vp = null;
-        try {
-            vp = new VentanaRecepcion(usuarioId);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ventanaCitasPacRecepcionista.class.getName()).log(Level.SEVERE, null, ex);
-        }
+          try {
+        VentanaRecepcion vp = new VentanaRecepcion(usuarioId);
         vp.setVisible(true);
         this.dispose();
+    } catch (ClassNotFoundException | SQLException ex) {
+        Logger.getLogger(ventanaCitasPacRecepcionista.class.getName())
+              .log(Level.SEVERE, null, ex);
+        JOptionPane.showMessageDialog(
+                this,
+                "Error al abrir la ventana de inicio:\n" + ex.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }   
     }//GEN-LAST:event_lblInicioMouseClicked
 
     private void lblAgregarCitaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAgregarCitaMouseClicked

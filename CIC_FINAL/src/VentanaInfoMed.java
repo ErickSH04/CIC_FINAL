@@ -53,7 +53,6 @@ public class VentanaInfoMed extends javax.swing.JFrame {
         lblTelefonoR = new javax.swing.JLabel();
         lblCorreo = new javax.swing.JLabel();
         lblCorreoR = new javax.swing.JLabel();
-        txtTelefonoR = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -142,8 +141,6 @@ public class VentanaInfoMed extends javax.swing.JFrame {
 
         lblCorreoR.setFont(new java.awt.Font("Roboto", 2, 14));
 
-        txtTelefonoR.setText("jLabel2");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -168,9 +165,7 @@ public class VentanaInfoMed extends javax.swing.JFrame {
                             .addComponent(lblTelefonoR, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(lblCorreoR, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(31, 31, 31)
-                                .addComponent(txtTelefonoR, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(74, 74, 74)
                                 .addComponent(lblNombreR, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -193,9 +188,7 @@ public class VentanaInfoMed extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(lblMedicoIdR, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lblNombreR, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtTelefonoR))
+                        .addComponent(lblNombreR, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(21, 21, 21)
                         .addComponent(lblEspecialidadR, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(32, 32, 32)
@@ -366,6 +359,5 @@ public class VentanaInfoMed extends javax.swing.JFrame {
     private javax.swing.JLabel lblNombreR;
     private javax.swing.JLabel lblTelefono;
     private javax.swing.JLabel lblTelefonoR;
-    private javax.swing.JLabel txtTelefonoR;
     // End of variables declaration//GEN-END:variables
 }
