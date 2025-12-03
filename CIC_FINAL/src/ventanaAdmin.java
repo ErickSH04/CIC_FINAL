@@ -164,6 +164,7 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         lblUsuario = new javax.swing.JLabel();
         lblSalir = new javax.swing.JLabel();
         lblAgregarCita1 = new javax.swing.JLabel();
+        lblAgregarCostos = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCita = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
@@ -203,6 +204,15 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             }
         });
 
+        lblAgregarCostos.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
+        lblAgregarCostos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/agregar-usuario.png"))); // NOI18N
+        lblAgregarCostos.setText("Agregar Costos Citas");
+        lblAgregarCostos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblAgregarCostosMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -213,12 +223,15 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(lblSalir))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addComponent(lblAgregarCita1))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(lblSalir)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap()
+                        .addComponent(lblAgregarCostos)))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -226,7 +239,9 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 .addComponent(lblUsuario)
                 .addGap(155, 155, 155)
                 .addComponent(lblAgregarCita1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 278, Short.MAX_VALUE)
+                .addGap(53, 53, 53)
+                .addComponent(lblAgregarCostos)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(lblSalir)
                 .addGap(142, 142, 142))
         );
@@ -377,7 +392,7 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addGap(17, 17, 17)
                                 .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE)
                                 .addComponent(jLabel5)
                                 .addGap(57, 57, 57))
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -393,7 +408,7 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -528,6 +543,15 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
 
     }//GEN-LAST:event_cbRecepActionPerformed
+
+    private void lblAgregarCostosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblAgregarCostosMouseClicked
+      if (con == null) {
+        JOptionPane.showMessageDialog(this, "Conexión nula.");
+        return;
+    }
+    CostosCitasDialog dlg = new CostosCitasDialog(this, con, usuarioId);
+    dlg.setVisible(true);
+    }//GEN-LAST:event_lblAgregarCostosMouseClicked
     public static String obtenerIdMed(String correo) {
         con = ConexionSQL.ConexionSQLServer();
         Statement stmt2;
@@ -1169,6 +1193,7 @@ private void eliminarRecepcionista(String id) {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblAgregarCita1;
+    private javax.swing.JLabel lblAgregarCostos;
     private javax.swing.JLabel lblBuscar;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblSalir;
