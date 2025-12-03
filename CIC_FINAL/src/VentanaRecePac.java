@@ -53,6 +53,8 @@ public class VentanaRecePac extends javax.swing.JFrame {
         lblMedico = new javax.swing.JLabel();
         cbmRecetas = new javax.swing.JComboBox<>();
         lblInformacion1 = new javax.swing.JLabel();
+        lblMedico1 = new javax.swing.JLabel();
+        lblEspecialidad = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -140,6 +142,11 @@ public class VentanaRecePac extends javax.swing.JFrame {
         lblInformacion1.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
         lblInformacion1.setText("Busqueda por fecha de emisión:");
 
+        lblMedico1.setFont(new java.awt.Font("Roboto", 2, 24)); // NOI18N
+        lblMedico1.setText("Especialidad: ");
+
+        lblEspecialidad.setFont(new java.awt.Font("Roboto", 2, 14));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -174,7 +181,11 @@ public class VentanaRecePac extends javax.swing.JFrame {
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(cbmRecetas, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGap(19, 19, 19)))
-                    .addComponent(lblIndicaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblIndicaciones, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(lblMedico1, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(137, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -206,7 +217,11 @@ public class VentanaRecePac extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblMedico, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblMedicoR, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(110, 110, 110))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblMedico1, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -274,51 +289,77 @@ public void llenarDatos() {
         if (fecha == null || fecha.equals("Selecciona")) {
             return;
         }
-        
+
         // Extraer solo la fecha del item seleccionado (en caso de que incluya el ID)
         String fechaSeleccionada = fecha.split(" - ")[0];
-        
+
         stmt = con.createStatement();
-        String query = "SELECT RM.fechaEmision, RM.idReceta, RM.indicaciones, RM.medicamentos, RM.idMedico "
-                + "FROM RecetaMedica RM "
-                + "INNER JOIN PACIENTE PAC ON PAC.numeroSeguro = RM.numeroSeguro "  // CORREGIDO
-                + "WHERE RM.fechaEmision = '" + fechaSeleccionada + "' AND PAC.Correo = '" + usuarioId + "'";  // CORREGIDO
+        String query =
+            "SELECT RM.fechaEmision, RM.idReceta, RM.indicaciones, RM.medicamentos, " +
+            "       M.nombreMed, M.apellido1, M.apellido2, M.Especialidad " +
+            "FROM RecetaMedica RM " +
+            "INNER JOIN PACIENTE PAC ON PAC.numeroSeguro = RM.numeroSeguro " +
+            "INNER JOIN MEDICO M ON M.idMedico = RM.idMedico " +
+            "WHERE RM.fechaEmision = '" + fechaSeleccionada + "' " +
+            "  AND PAC.Correo = '" + usuarioId + "'";
+
         ResultSet result = stmt.executeQuery(query);
         System.out.println("QUERY: " + query);
-        
+
         // Limpiar campos antes de llenar
         lblFechaR.setText("");
         lblIDR.setText("");
         lblIndicacionesR.setText("");
         lblMedicamentoR.setText("");
         lblMedicoR.setText("");
-        
-        String fechaEmi = "", idReceta = "", indicaciones = "", medicamentos = "", medico = "";
+        lblEspecialidad.setText("");
+
+        String fechaEmi = "";
+        String idReceta = "";
+        String indicaciones = "";
+        String medicamentos = "";
+        String nombreMed = "";
+        String ape1 = "";
+        String ape2 = "";
+        String especialidad = "";
+
         while (result.next()) {
-            fechaEmi = result.getString("fechaEmision");
-            idReceta = result.getString("idReceta");
-            indicaciones = result.getString("indicaciones");
-            medicamentos = result.getString("medicamentos");
-            medico = result.getString("idMedico");
+            fechaEmi      = result.getString("fechaEmision");
+            idReceta      = result.getString("idReceta");
+            indicaciones  = result.getString("indicaciones");
+            medicamentos  = result.getString("medicamentos");
+            nombreMed     = result.getString("nombreMed");
+            ape1          = result.getString("apellido1");
+            ape2          = result.getString("apellido2");
+            especialidad  = result.getString("Especialidad");
 
             lblFechaR.setText(fechaEmi != null ? fechaEmi : "");
             lblIDR.setText(idReceta != null ? idReceta : "");
             lblIndicacionesR.setText(indicaciones != null ? indicaciones : "");
             lblMedicamentoR.setText(medicamentos != null ? medicamentos : "");
-            lblMedicoR.setText(medico != null ? medico : "");
+
+            // Nombre completo del médico
+            String nombreCompleto = 
+                (nombreMed != null ? nombreMed : "") + " " +
+                (ape1 != null ? ape1 : "") + " " +
+                (ape2 != null ? ape2 : "");
+            lblMedicoR.setText(nombreCompleto.trim());
+
+            // Especialidad
+            lblEspecialidad.setText(especialidad != null ? especialidad : "");
         }
-        
+
         // Si no se encontraron resultados
         if (fechaEmi.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No se encontró la receta seleccionada");
         }
-        
+
     } catch (SQLException ex) {
         Logger.getLogger(VentanaRecePac.class.getName()).log(Level.SEVERE, null, ex);
         JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage());
     }
-    
 }
+
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -359,6 +400,7 @@ public void llenarDatos() {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel lblAM;
     private javax.swing.JLabel lblCerrarSesion;
+    private javax.swing.JLabel lblEspecialidad;
     private javax.swing.JLabel lblFechaR;
     private javax.swing.JLabel lblID;
     private javax.swing.JLabel lblIDR;
@@ -370,6 +412,7 @@ public void llenarDatos() {
     private javax.swing.JLabel lblMedicamento;
     private javax.swing.JLabel lblMedicamentoR;
     private javax.swing.JLabel lblMedico;
+    private javax.swing.JLabel lblMedico1;
     private javax.swing.JLabel lblMedicoR;
     private Reloj1 reloj11;
     // End of variables declaration//GEN-END:variables

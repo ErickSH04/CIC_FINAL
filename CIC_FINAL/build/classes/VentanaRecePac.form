@@ -86,6 +86,11 @@
                           </Group>
                       </Group>
                       <Component id="lblIndicaciones" alignment="0" min="-2" pref="170" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="lblMedico1" min="-2" pref="288" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="lblEspecialidad" min="-2" pref="195" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace pref="137" max="32767" attributes="0"/>
               </Group>
@@ -125,7 +130,12 @@
                       <Component id="lblMedico" alignment="3" min="-2" pref="68" max="-2" attributes="0"/>
                       <Component id="lblMedicoR" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="110" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="lblMedico1" alignment="3" min="-2" pref="68" max="-2" attributes="0"/>
+                      <Component id="lblEspecialidad" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -178,7 +188,7 @@
                   <Image iconType="3" name="/imagenes/cerrar-sesionM.png"/>
                 </Property>
                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                  <Color id="Cursor Por defecto"/>
+                  <Color id="Default Cursor"/>
                 </Property>
               </Properties>
             </Component>
@@ -309,6 +319,21 @@
               <Font name="Roboto" size="24" style="2"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Busqueda por fecha de emisi&#xf3;n:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lblMedico1">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Roboto" size="24" style="2"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Especialidad: "/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="lblEspecialidad">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="new java.awt.Font(&quot;Roboto&quot;, 2, 14)" type="code"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>

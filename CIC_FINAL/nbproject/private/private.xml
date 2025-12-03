@@ -4,26 +4,30 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaPagosIn.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/registroCitasPanel.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaAdmin.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaPacientesRecp.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaInfoPac.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaHistorialCita.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaMedico.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaCitasMed.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaCitasCompletadasMed.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventaPagos.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/loginHospitalNuevo.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaInfoMed.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/registroCitaPac.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ObjetoExpediente.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaCitasPacRecepcionista.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ReasignarCitasDialog.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaInfoMedRecp.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ConexionSQL.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/registroMedico.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/registroRecepcionista.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaRecePac.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ConexionSQLAmazon.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaInfoPac.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/loginHospitalNuevo.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ObjetoExpediente.java</file>
+            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ConexionSQL.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaReceMed.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ventanaCitasPac.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/registroRecepcionista.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaRecepcion.java</file>
-            <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/ConexionSQLAmazon.java</file>
             <file>file:/C:/CIC/CIC_FINAL/CIC_FINAL/src/VentanaAgregarReceta.java</file>
         </group>
     </open-files>

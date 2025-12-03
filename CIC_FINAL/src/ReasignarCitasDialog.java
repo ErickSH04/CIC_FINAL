@@ -18,7 +18,12 @@ public class ReasignarCitasDialog extends JDialog {
     private DefaultTableModel mMedicosDisp;
 
     private boolean todoReasignado = false;
+    
+    private boolean sinHorasDisponibles = false;
 
+    public boolean sinHorasDisponibles() {
+    return sinHorasDisponibles;
+    }
     public ReasignarCitasDialog(Frame owner, Connection con, int idMedicoOriginal) {
         super(owner, "Reasignar citas del médico " + idMedicoOriginal, true);
         this.con = con;
@@ -106,53 +111,67 @@ public class ReasignarCitasDialog extends JDialog {
         }
     }
 
-    // =================== CARGAR MÉDICOS DISPONIBLES PARA UNA CITA ===================
-
     private void cargarMedicosParaCitaSeleccionada() {
-        int row = tblCitas.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Selecciona una cita primero.");
-            return;
-        }
-
-        java.sql.Date fecha = (java.sql.Date) mCitas.getValueAt(row, 1);
-        String hora = mCitas.getValueAt(row, 2).toString();
-
-        mMedicosDisp.setRowCount(0);
-
-        String sql =
-                "SELECT m.idMedico, m.nombreMed, m.apellido1, m.apellido2, m.Especialidad " +
-                "FROM MEDICO m " +
-                "WHERE m.idMedico <> ? " +
-                "AND NOT EXISTS (" +
-                "    SELECT 1 FROM CITA c " +
-                "    WHERE c.idMedico = m.idMedico " +
-                "      AND c.fecha = ? " +
-                "      AND c.hora  = ?" +
-                ")";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idMedicoOriginal);
-            ps.setDate(2, fecha);
-            ps.setString(3, hora);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    mMedicosDisp.addRow(new Object[]{
-                            rs.getInt("idMedico"),
-                            rs.getString("nombreMed"),
-                            rs.getString("apellido1"),
-                            rs.getString("apellido2"),
-                            rs.getString("Especialidad")
-                    });
-                }
-            }
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Error cargando médicos disponibles:\n" + ex.getMessage());
-        }
+    int row = tblCitas.getSelectedRow();
+    if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Selecciona una cita primero.");
+        return;
     }
+
+    // Reiniciamos el flag cada vez que consultas
+    sinHorasDisponibles = false;
+
+    java.sql.Date fecha = (java.sql.Date) mCitas.getValueAt(row, 1);
+    String hora = mCitas.getValueAt(row, 2).toString();
+
+    mMedicosDisp.setRowCount(0);
+
+    String sql =
+            "SELECT m.idMedico, m.nombreMed, m.apellido1, m.apellido2, m.Especialidad " +
+            "FROM MEDICO m " +
+            "WHERE m.idMedico <> ? " +
+            "AND NOT EXISTS (" +
+            "    SELECT 1 FROM CITA c " +
+            "    WHERE c.idMedico = m.idMedico " +
+            "      AND c.fecha = ? " +
+            "      AND c.hora  = ?" +
+            ")";
+
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, idMedicoOriginal);
+        ps.setDate(2, fecha);
+        ps.setString(3, hora);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                mMedicosDisp.addRow(new Object[]{
+                        rs.getInt("idMedico"),
+                        rs.getString("nombreMed"),
+                        rs.getString("apellido1"),
+                        rs.getString("apellido2"),
+                        rs.getString("Especialidad")
+                });
+            }
+        }
+
+        // AQUÍ: si no se encontró ningún médico disponible para ese horario
+        if (mMedicosDisp.getRowCount() == 0) {
+            sinHorasDisponibles = true;
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No hay médicos disponibles para esa fecha y hora.\n" +
+                    "No hay horarios disponibles para reasignar esta cita.",
+                    "Sin horarios disponibles",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this,
+                "Error cargando médicos disponibles:\n" + ex.getMessage());
+    }
+}
+
 
     // =================== REASIGNAR UNA CITA ===================
 

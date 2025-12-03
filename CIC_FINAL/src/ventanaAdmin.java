@@ -617,25 +617,27 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
     }
 
     try {
-        // 1) Contar citas "activas" del médico
+        int idNum = Integer.parseInt(idMedico);
+
+        // 1) Contar citas del médico
         String sqlCount = "SELECT COUNT(*) FROM CITA WHERE idMedico = ?";
-        int total = 0;
+        int totalCitas = 0;
 
         try (PreparedStatement ps = con.prepareStatement(sqlCount)) {
-            ps.setInt(1, Integer.parseInt(idMedico));
+            ps.setInt(1, idNum);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    total = rs.getInt(1);
+                    totalCitas = rs.getInt(1);
                 }
             }
         }
 
-        if (total == 0) {
-            // 2) No tiene citas → mensaje + botones Eliminar / Cancelar
+        // 2) Si NO tiene citas → igual que antes
+        if (totalCitas == 0) {
             Object[] opciones = { "Eliminar", "Cancelar" };
             int op = JOptionPane.showOptionDialog(
                     this,
-                    "Este médico no tiene citas disponibles.\n\n¿Deseas eliminarlo?",
+                    "Este médico no tiene citas agendadas.\n\n¿Deseas eliminarlo?",
                     "Eliminar médico",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.WARNING_MESSAGE,
@@ -645,20 +647,71 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
             );
 
             if (op == 0) {
-                // El usuario confirmó
                 eliminarMedicoSeguro(idMedico);
             }
+            return;
+        }
 
-        } else {
-            // 3) SÍ tiene citas → abrir diálogo para reasignar
-            ReasignarCitasDialog dlg = new ReasignarCitasDialog(this, con, Integer.parseInt(idMedico));
-            dlg.setVisible(true);
-
-            // Si el diálogo indica que ya reasignó todas las citas,
-            // entonces ahora sí lo puedes eliminar
-            if (dlg.fueReasignadoTodo()) {
-                eliminarMedicoSeguro(idMedico);
+        // 3) SI tiene citas → verificar si hay otros médicos
+        int otrosMedicos = 0;
+        String sqlOtros = "SELECT COUNT(*) FROM medico WHERE idMedico <> ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlOtros)) {
+            ps.setInt(1, idNum);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    otrosMedicos = rs.getInt(1);
+                }
             }
+        }
+
+        if (otrosMedicos == 0) {
+            // SOLO HAY ESE MÉDICO
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Este médico tiene " + totalCitas + " citas agendadas\n" +
+                    "y no hay otros médicos disponibles para reasignar.\n\n" +
+                    "Esta acción no se puede completar.",
+                    "Sin médicos disponibles",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // 4) Preguntar si quiere reagendar
+        int op = JOptionPane.showConfirmDialog(
+                this,
+                "Este médico tiene " + totalCitas + " citas agendadas.\n\n" +
+                "¿Deseas reagendar estas citas con otro médico antes de eliminarlo?",
+                "Reasignar citas",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (op != JOptionPane.YES_OPTION) {
+            // No quiere reagendar → no hacemos nada
+            return;
+        }
+
+        // 5) Aquí ya abres el diálogo de reasignación
+        ReasignarCitasDialog dlg = new ReasignarCitasDialog(this, con, idNum);
+        dlg.setVisible(true);
+
+        // OPCIONAL: si en el diálogo detectas que no hay horarios,
+        // podrías tener un método como dlg.sinHorasDisponibles()
+        if (dlg.sinHorasDisponibles()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No hay horarios disponibles para reasignar las citas.\n" +
+                    "Esta acción no se puede completar.",
+                    "Sin horarios disponibles",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // 6) Si el diálogo dice que todo fue reasignado → eliminar al médico
+        if (dlg.fueReasignadoTodo()) {
+            eliminarMedicoSeguro(idMedico);
         }
 
     } catch (SQLException ex) {
@@ -669,6 +722,7 @@ tblRecep.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 "idMedico no es numérico: " + idMedico);
     }
 }
+
 
     private void eliminarPersonal(String tipo, String nombre, String ape1, String ape2) {
     try {
