@@ -89,17 +89,18 @@ public class ventaPagos extends javax.swing.JFrame {
         if (conn == null) return;
 
         String q =
-          "SELECT p.idPago, p.monto, p.fechaPago, p.tipoPago, p.numTarjeta, " +
-          "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
-          "       c.idCita, c.fecha AS fechaCita, c.hora AS horaCita, " +
-          "       m.nombreMed, m.apellido1 AS apellido1Med, m.Especialidad, te.precio AS tarifa " +
-          "FROM Pago p " +
-          "LEFT JOIN PagoCita pc ON pc.idPago = p.idPago " +
-          "LEFT JOIN Cita c      ON c.idCita  = pc.idCita " +
-          "LEFT JOIN Medico m    ON m.idMedico = c.idMedico " +
-          "LEFT JOIN Paciente pac ON pac.numeroSeguro = c.numeroSeguro " +
-          "LEFT JOIN tarifa_especialidad te ON te.especialidad = m.Especialidad " +
-          "WHERE p.idPago = ?";
+  "SELECT p.idPago, p.monto, p.fechaPago, p.tipoPago, p.numTarjeta, " +
+  "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
+  "       c.idCita, c.fecha AS fechaCita, c.hora AS horaCita, " +
+  "       m.nombreMed, m.apellido1 AS apellido1Med, m.Especialidad, te.precio AS tarifa " +
+  "FROM dbo.Pago p " +
+  "LEFT JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +
+  "LEFT JOIN dbo.Cita c      ON c.idCita  = pc.idCita " +
+  "LEFT JOIN dbo.Medico m    ON m.idMedico = c.idMedico " +
+  "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = LTRIM(RTRIM(c.numeroSeguro)) " + // <<< AQUÍ
+  "LEFT JOIN dbo.tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+  "WHERE p.idPago = ?";
+
 
         try (PreparedStatement ps = conn.prepareStatement(q)) {
             ps.setString(1, idPago);
@@ -240,20 +241,21 @@ private void cargarTodosLosPagos() {
         }
 
         String query =
-            "SELECT p.idPago, p.fechaPago, p.monto, " +
-            "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
-            "       CASE " +
-            "         WHEN te.precio IS NULL THEN 'Pagado' " +
-            "         WHEN p.monto >= te.precio THEN 'Pagado' " +
-            "         ELSE 'Pago incompleto: falta $' + CONVERT(varchar(32), te.precio - p.monto) " +
-            "       END AS estatus " +
-            "FROM Pago p " +
-            "LEFT JOIN PagoCita pc ON pc.idPago = p.idPago " +
-            "LEFT JOIN Cita c      ON c.idCita  = pc.idCita " +
-            "LEFT JOIN Paciente pac ON pac.numeroSeguro = c.numeroSeguro " +
-            "LEFT JOIN Medico m     ON m.idMedico = c.idMedico " +
-            "LEFT JOIN tarifa_especialidad te ON te.especialidad = m.Especialidad " +
-            "ORDER BY p.fechaPago DESC, p.idPago DESC";
+    "SELECT p.idPago, p.fechaPago, p.monto, " +
+    "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
+    "       CASE " +
+    "         WHEN te.precio IS NULL THEN 'Pagado' " +
+    "         WHEN p.monto >= te.precio THEN 'Pagado' " +
+    "         ELSE 'Pago incompleto: falta $' + CONVERT(varchar(32), te.precio - p.monto) " +
+    "       END AS estatus " +
+    "FROM dbo.Pago p " +
+    "LEFT JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +
+    "LEFT JOIN dbo.Cita c      ON c.idCita  = pc.idCita " +
+    "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = LTRIM(RTRIM(c.numeroSeguro)) " + // <<< AQUÍ
+    "LEFT JOIN dbo.Medico m     ON m.idMedico = c.idMedico " +
+    "LEFT JOIN dbo.tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+    "ORDER BY p.fechaPago DESC, p.idPago DESC";
+
 
         stmt = conn.createStatement();
         rs = stmt.executeQuery(query);
