@@ -188,12 +188,12 @@
                   <Table columnCount="8" rowCount="4">
                     <Column editable="false" title="#" type="java.lang.Object"/>
                     <Column editable="false" title="Fecha Pago" type="java.lang.Object"/>
-                    <Column editable="false" title="Monto" type="java.lang.Object"/>
-                    <Column editable="false" title="Nombre" type="java.lang.Object"/>
-                    <Column editable="true" title="Apellido 1" type="java.lang.Object"/>
-                    <Column editable="false" title="Apellido 2" type="java.lang.Object"/>
-                    <Column editable="true" title="Numero Seguro" type="java.lang.Object"/>
-                    <Column editable="false" title="Estatus" type="java.lang.Object"/>
+                    <Column editable="false" title="Abono" type="java.lang.Object"/>
+                    <Column editable="false" title="Costo" type="java.lang.Object"/>
+                    <Column editable="true" title="Nombre" type="java.lang.Object"/>
+                    <Column editable="false" title="Apellido 1" type="java.lang.Object"/>
+                    <Column editable="true" title="Apellido 2" type="java.lang.Object"/>
+                    <Column editable="false" title="NSS" type="java.lang.Object"/>
                   </Table>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">

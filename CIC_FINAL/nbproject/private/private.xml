@@ -3,20 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/registroMedico.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/NotificacionCorreo.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/VentanaInfoMedRecp.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ConexionSQL.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventanaMedico.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/registroCitaMed.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventanaCitasCompletadasMed.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventanaCitasPac.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/VentanaInfoPac.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ConsultarRecetas.java</file>
             <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventanaCitasMed.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventaPagos.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/registroPaciente.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/modificarFecha.java</file>
-            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/registroCitaPac.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/seleccionarReceta.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/atendMod.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/VentanaAgregarReceta.java</file>
+            <file>file:/C:/CIC_FINAL/CIC_FINAL/CIC_FINAL/src/ventanaMedico.java</file>
         </group>
     </open-files>
 </project-private>

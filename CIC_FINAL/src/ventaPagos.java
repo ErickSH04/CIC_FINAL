@@ -397,7 +397,7 @@ m.addRow(new Object[] {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "#", "Fecha Pago", "Monto", "Nombre", "Apellido 1", "Apellido 2", "Numero Seguro", "Estatus"
+                "#", "Fecha Pago", "Abono", "Costo", "Nombre", "Apellido 1", "Apellido 2", "NSS"
             }
         ) {
             boolean[] canEdit = new boolean [] {
