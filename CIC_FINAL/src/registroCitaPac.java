@@ -17,7 +17,7 @@ import static javax.swing.JOptionPane.showMessageDialog;
 import javax.swing.SwingUtilities;
 
 public class registroCitaPac extends javax.swing.JFrame {
-    
+    public static Connection con;
     //HolaMundo123
 
     //private static Statement stmt;
@@ -30,7 +30,7 @@ public class registroCitaPac extends javax.swing.JFrame {
     public registroCitaPac(String correo) throws ClassNotFoundException {
     initComponents();
     this.setLocationRelativeTo(this);
-    this.usuarioId = usuarioId;
+    this.usuarioId = correo;
     txtIdCita.setEditable(false);
     String idCita = obtenerCita();
     txtIdCita.setText(idCita);
@@ -38,6 +38,30 @@ public class registroCitaPac extends javax.swing.JFrame {
     fechaCita.setMinSelectableDate(new Date());
     this.nssPacienteValidado = null; //error
     
+    
+        Connection con = ConexionSQL.ConexionSQLServer();
+        Statement stmt2;
+        ResultSet resultadoMed;
+        String nombrePac = "";
+
+        try {
+            stmt2 = con.createStatement();
+            String query = "select nombrePac from PACIENTE \n"
+                    + "where Correo = '" + this.usuarioId + "';";
+            System.out.println(query);
+            resultadoMed = stmt2.executeQuery(query);
+
+            while (resultadoMed.next()) {
+                nombrePac = resultadoMed.getString("nombrePac");
+            }
+
+        } catch (SQLException ex) {
+            java.util.logging.Logger.getLogger(ventanaCitasMed.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        this.txtNombrePaciente.setText(nombrePac);
+        this.txtNombrePaciente.setEditable(false);
+        validarPaciente();
+        
     configurarValidacionPaciente();
     
     //registrarCita(registroCitaPac.this.usuarioId);
@@ -149,44 +173,13 @@ private void configurarValidacionPaciente() {
                 this.nssPacienteValidado = nss; // Agrega esta variable a tu clase
                 
                 // Mostrar confirmación
-                int opcion = JOptionPane.showConfirmDialog(this,
-                    "Paciente encontrado:\n" +
-                    "Nombre: " + nombreCompleto + "\n" +
-                    "NSS: " + nss + "\n\n" +
-                    "¿Es este el paciente correcto?",
-                    "Confirmar Paciente",
-                    JOptionPane.YES_NO_OPTION);
-                
-                if (opcion == JOptionPane.YES_OPTION) {
+
                     txtNombrePaciente.setText(nombreCompleto);
                     txtNombrePaciente.setEditable(false); 
                     
                     // Guardar el NSS en una variable de instancia
                     this.nssPacienteValidado = nss;
                     
-                    JOptionPane.showMessageDialog(this, 
-                        "Paciente confirmado: " + nombreCompleto + "\n" +
-                        "NSS: " + nss);
-                } else {
-                    this.nssPacienteValidado = null;
-                }
-            } else {
-                // PACIENTE NO ENCONTRADO
-                int opcion = JOptionPane.showConfirmDialog(this,
-                    "No se encontró el paciente: " + nombrePaciente + "\n\n" +
-                    "¿Desea registrar un nuevo paciente?",
-                    "Paciente No Encontrado",
-                    JOptionPane.YES_NO_OPTION);
-                
-                if (opcion == JOptionPane.YES_OPTION) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Por favor registre al paciente primero\n" +
-                        "y luego vuelva a agendar la cita.");
-                } else {
-                    txtNombrePaciente.setText("");
-                    txtNombrePaciente.requestFocus();
-                }
-                this.nssPacienteValidado = null;
             }
         }
     } catch (SQLException ex) {
@@ -286,6 +279,11 @@ private void configurarValidacionPaciente() {
         txtNombrePaciente.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtNombrePacienteActionPerformed(evt);
+            }
+        });
+        txtNombrePaciente.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtNombrePacienteKeyPressed(evt);
             }
         });
 
@@ -513,6 +511,10 @@ private void configurarValidacionPaciente() {
     private void txtNombrePacienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombrePacienteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNombrePacienteActionPerformed
+
+    private void txtNombrePacienteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNombrePacienteKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNombrePacienteKeyPressed
 
     public void llenarDoctor() {
     Connection conn = null;
