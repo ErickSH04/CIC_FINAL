@@ -39,10 +39,11 @@ public class ventanaPagos extends javax.swing.JFrame {
         
         txtMetodoPago.setEditable(false);
         txtPaciente.setEditable(false);
+        txtNSS.setEditable(false);
         
         // Agregar placeholders y configurar validación
         agregarPlaceholders();
-        configurarValidacionPaciente();
+        //configurarValidacionPaciente();
         
         // Cargar datos del paciente y médico en los campos
         cargarDatosPaciente();
@@ -57,9 +58,10 @@ public class ventanaPagos extends javax.swing.JFrame {
         
         txtMetodoPago.setEditable(false);
         txtPaciente.setEditable(false);
+         txtNSS.setEditable(false);
         
         agregarPlaceholders();
-        configurarValidacionPaciente();
+        //configurarValidacionPaciente();
         cargarDatosPaciente();
     }
     
@@ -120,7 +122,7 @@ public class ventanaPagos extends javax.swing.JFrame {
             }
         });
         // MONTO
-    TextMonto.setText("0.00");
+    /*TextMonto.setText("0.00");
     TextMonto.setForeground(Color.GRAY);
     TextMonto.addFocusListener(new java.awt.event.FocusAdapter() {
         public void focusGained(java.awt.event.FocusEvent evt) {
@@ -135,7 +137,7 @@ public class ventanaPagos extends javax.swing.JFrame {
                 TextMonto.setText("0.00");
             }
         }
-    });  
+    }); */ 
     }
     
     // Configurar el KeyListener para el campo de nombre del titular
@@ -144,14 +146,14 @@ public class ventanaPagos extends javax.swing.JFrame {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
-                    validarPaciente();
+                    //validarPaciente();
                 }
             }
         });
     }
     
     // Método para validar paciente
-    private void validarPaciente() {
+   /* private void validarPaciente() {
         String nombrePaciente = txtNombreTitular.getText().trim();
         
         if (nombrePaciente.isEmpty() || nombrePaciente.equals("Ingrese nombre completo")) {
@@ -249,7 +251,7 @@ public class ventanaPagos extends javax.swing.JFrame {
             try { if (ps != null) ps.close(); } catch (SQLException ex) { ex.printStackTrace(); }
             try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
         }
-    }
+    }*/
     
     private int obtenerProximoIdPago() {
         Connection conn = null;
@@ -296,6 +298,7 @@ public class ventanaPagos extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this,
                 "NSS no proporcionado. El campo usuarioId está vacío.");
             txtPaciente.setText("NO ESPECIFICADO");
+            txtNSS.setText("NO ESPECIFICADO");
             return;
         }
 
@@ -321,6 +324,7 @@ public class ventanaPagos extends javax.swing.JFrame {
 
             txtPaciente.setText(nombreCompleto);
             txtMetodoPago.setText(rs.getString("metodoPago"));
+            txtNSS.setText(nssBD); 
             
             // DEBUG
             System.out.println("Paciente cargado: " + nombreCompleto);
@@ -364,11 +368,12 @@ private void buscarPacienteAlternativo() {
                                       + rs.getString("apellido1") + " "
                                       + rs.getString("apellido2");
                 
+                String nssReal = rs.getString("numeroSeguro");
+                
                 txtPaciente.setText(nombreCompleto);
                 txtMetodoPago.setText(rs.getString("metodoPago"));
+                txtNSS.setText(nssReal); 
                 
-                // Actualizar usuarioId al NSS real
-                String nssReal = rs.getString("numeroSeguro");
                 this.usuarioId = nssReal;
                 
                 JOptionPane.showMessageDialog(this,
@@ -415,6 +420,7 @@ private void buscarPacienteAlternativo() {
                 this.usuarioId = nssReal;
             } else {
                 txtPaciente.setText("Paciente no confirmado");
+                 txtNSS.setText("");
             }
         } else {
             JOptionPane.showMessageDialog(this,
@@ -423,6 +429,7 @@ private void buscarPacienteAlternativo() {
                 "Paciente No Encontrado",
                 JOptionPane.WARNING_MESSAGE);
             txtPaciente.setText("NO ENCONTRADO: " + usuarioId);
+            txtNSS.setText("");
         }
         
     } catch (SQLException ex) {
@@ -478,25 +485,94 @@ private boolean validarDatosPago() {
         return false;
     }
 
-    // 3. Validar CVV
-    String cvv = txtCVV.getText().replaceAll("\\D+", "");
-    if (cvv.length() < 3 || cvv.length() > 4) {
-        JOptionPane.showMessageDialog(this,
-                "CVV inválido.\nDebe ser de 3 o 4 dígitos.",
-                "Error de Validación", JOptionPane.WARNING_MESSAGE);
-        txtCVV.requestFocus();
-        txtCVV.selectAll();
-        return false;
-    }
+    // 3. Validar CVV - VERSIÓN MEJORADA
+String cvvTexto = txtCVV.getText().trim();
 
-    // 4. Validar nombre del titular
-    if (txtNombreTitular.getText().trim().isEmpty()) {
+// Verificar si es placeholder
+if (cvvTexto.equals("123") && txtCVV.getForeground().equals(Color.GRAY)) {
+    JOptionPane.showMessageDialog(this,
+            "Debe ingresar el CVV de la tarjeta.",
+            "Error de Validación", JOptionPane.WARNING_MESSAGE);
+    txtCVV.requestFocus();
+    txtCVV.selectAll();
+    return false;
+}
+
+// Limpiar solo dígitos
+String cvv = cvvTexto.replaceAll("\\D+", "");
+
+// Validar longitud
+if (cvv.length() != 3) {
+    JOptionPane.showMessageDialog(this,
+            "CVV inválido.\nDebe ser de 3dígitos.\n", 
+            "Error de Validación", JOptionPane.WARNING_MESSAGE);
+    txtCVV.requestFocus();
+    txtCVV.selectAll();
+    return false;
+}
+
+// Validar que sean solo números
+if (!cvv.matches("\\d{3,4}")) {
+    JOptionPane.showMessageDialog(this,
+            "CVV inválido.\nSolo debe contener números.",
+            "Error de Validación", JOptionPane.WARNING_MESSAGE);
+    txtCVV.requestFocus();
+    txtCVV.selectAll();
+    return false;
+}
+
+ // 4. Validar nombre del titular
+String nombreTitular = txtNombreTitular.getText().trim();
+
+// Verificar si es placeholder
+if (nombreTitular.isEmpty() || nombreTitular.equals("Ingrese nombre completo")) {
+    JOptionPane.showMessageDialog(this,
+            "Debe ingresar el nombre del titular de la tarjeta.",
+            "Error de Validación", JOptionPane.WARNING_MESSAGE);
+    txtNombreTitular.requestFocus();
+    txtNombreTitular.selectAll();
+    return false;
+}
+
+// Validar que tenga al menos nombre y apellido
+String[] palabras = nombreTitular.split("\\s+");
+if (palabras.length < 2) {
+    JOptionPane.showMessageDialog(this,
+            "Ingrese nombre completo del titular (nombre y apellido).",
+            "Error de Validación", JOptionPane.WARNING_MESSAGE);
+    txtNombreTitular.requestFocus();
+    txtNombreTitular.selectAll();
+    return false;
+}
+
+// Validar que cada palabra contenga solo letras válidas
+// Expresión regular corregida: [A-Za-zÁÉÍÓÚáéíóúÑñÜü] sin \\s
+for (String palabra : palabras) {
+    // Eliminar guiones para la validación (permitir nombres como "Ana-María")
+    String palabraLimpia = palabra.replace("-", "");
+    
+    if (!palabraLimpia.matches("[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+")) {
         JOptionPane.showMessageDialog(this,
-                "Debe ingresar el nombre del titular de la tarjeta.",
+                "Nombre inválido: '" + palabra + "'\n" +
+                "Solo se permiten letras, acentos y la letra ñ.\n" +
+                "Ejemplo: María José González",
                 "Error de Validación", JOptionPane.WARNING_MESSAGE);
         txtNombreTitular.requestFocus();
+        txtNombreTitular.selectAll();
         return false;
     }
+    
+    // Validar longitud mínima
+    if (palabraLimpia.length() < 2) {
+        JOptionPane.showMessageDialog(this,
+                "Cada nombre/apellido debe tener al menos 2 letras.\n" +
+                "Error en: '" + palabra + "'",
+                "Error de Validación", JOptionPane.WARNING_MESSAGE);
+        txtNombreTitular.requestFocus();
+        txtNombreTitular.selectAll();
+        return false;
+    }
+}
 
     // 5. Validar fecha de vencimiento
     if (fechaCita.getDate() == null) {
@@ -525,7 +601,7 @@ private boolean validarDatosPago() {
         return false;
     }
  // 7. Validar monto - VERSIÓN MEJORADA
-    String montoTexto = TextMonto.getText().trim();
+    /*String montoTexto = TextMonto.getText().trim();
     
     // Verificar si es placeholder (gris) o campo vacío
     if (TextMonto.getForeground().equals(Color.GRAY) || 
@@ -594,7 +670,7 @@ private boolean validarDatosPago() {
         TextMonto.requestFocus();
         TextMonto.selectAll();
         return false;
-    }
+    }*/
 
     return true;
 }
@@ -758,8 +834,29 @@ private boolean validarDatosPago() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String fechaVenc = sdf.format(fechaCita.getDate());
 
+            // Validación EXTRA del CVV antes de registrar
+    String cvvTexto = txtCVV.getText().trim();
+    String cvv = cvvTexto.replaceAll("\\D+", "");
+    
+    if (cvv.equals("123") && txtCVV.getForeground().equals(Color.GRAY)) {
+        JOptionPane.showMessageDialog(this,
+                "Error: El CVV no puede ser el valor por defecto (123).",
+                "Error de Validación", JOptionPane.WARNING_MESSAGE);
+        txtCVV.requestFocus();
+        txtCVV.selectAll();
+        return;
+    }
+    
+    if (cvv.length() < 3 || cvv.length() > 4) {
+        JOptionPane.showMessageDialog(this,
+                "Error: CVV debe tener 3 o 4 dígitos.",
+                "Error de Validación", JOptionPane.WARNING_MESSAGE);
+        txtCVV.requestFocus();
+        txtCVV.selectAll();
+        return;
+    }
         // CONVERTIR MONTO A BigDecimal
-        BigDecimal monto;
+        /*BigDecimal monto;
         try {
             // Eliminar símbolos de moneda y espacios
             String montoTexto = TextMonto.getText().trim()
@@ -784,30 +881,47 @@ private boolean validarDatosPago() {
             TextMonto.requestFocus();
             TextMonto.selectAll();
             return;
+        }*/
+        
+         // Obtener el NSS del paciente (de txtNSS o de usuarioId)
+        String numeroSeguro = null;
+        if (txtNSS != null && !txtNSS.getText().trim().isEmpty() && 
+            !txtNSS.getText().trim().equals("NSS")) {
+            numeroSeguro = txtNSS.getText().trim();
+        } else if (usuarioId != null && !usuarioId.trim().isEmpty()) {
+            numeroSeguro = usuarioId.trim();
         }
-
+        
+        // Validar que tenemos un NSS
+        if (numeroSeguro == null || numeroSeguro.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: No se encontró el NSS del paciente.",
+                    "Error de Validación", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         // Query EXACTA para tu tabla Pago
         String sql = "INSERT INTO Pago "
-                + "(monto, fechaPago, tipoPago, numTarjeta, NomTitular, cvv, FechVencimiento, TipoTarjeta) "
-                + "VALUES (?, GETDATE(), ?, ?, ?, ?, ?, ?)";
+                + "(fechaPago, tipoPago, numTarjeta, NomTitular, cvv, FechVencimiento, TipoTarjeta,numeroSeguro) "
+                + "VALUES (GETDATE(), ?, ?, ?, ?, ?, ?,?)";
 
         ps = conn.prepareStatement(sql);
 
         // Asignación ORDENADA y CORRECTA - USANDO setBigDecimal para monto
-        ps.setBigDecimal(1, monto);                           // monto (money) - ¡IMPORTANTE!
-        ps.setString(2, txtMetodoPago.getText());             // tipoPago
-        ps.setString(3, numTarjeta);                          // numTarjeta
-        ps.setString(4, txtNombreTitular.getText());          // NomTitular
-        ps.setString(5, txtCVV.getText());                    // cvv
-        ps.setString(6, fechaVenc);                           // FechVencimiento
-        ps.setString(7, cmbTtipo.getSelectedItem().toString()); // TipoTarjeta
+       // ps.setBigDecimal(1, monto);                           // monto (money) - ¡IMPORTANTE!
+        ps.setString(1, txtMetodoPago.getText());             // tipoPago
+        ps.setString(2, numTarjeta);                          // numTarjeta
+        ps.setString(3, txtNombreTitular.getText());          // NomTitular
+        ps.setString(4, txtCVV.getText());                    // cvv
+        ps.setString(5, fechaVenc);                           // FechVencimiento
+        ps.setString(6, cmbTtipo.getSelectedItem().toString()); // TipoTarjeta
+        ps.setString(7, numeroSeguro); 
 
         int r = ps.executeUpdate();
 
         if (r > 0) {
             // Formatear el monto para mostrar (solo para uso interno si lo necesitas)
-            NumberFormat formatoMoneda = NumberFormat.getCurrencyInstance();
-            String montoFormateado = formatoMoneda.format(monto);
+            //NumberFormat formatoMoneda = NumberFormat.getCurrencyInstance();
+            //String montoFormateado = formatoMoneda.format(monto);
 
             // NOTA: NO se muestra mensaje aquí, porque ya se mostró en el comprobante
             // Solo se registra en BD y se navega a la siguiente ventana
@@ -842,7 +956,7 @@ private boolean validarDatosPago() {
     }
 }  
 
-private void mostrarComprobantePago() {
+/*private void mostrarComprobantePago() {
     // Primero validar los datos
     if (!validarDatosPago()) {
         return;
@@ -935,7 +1049,7 @@ private void mostrarComprobantePago() {
             "Pago Cancelado",
             JOptionPane.INFORMATION_MESSAGE);
     }
-}
+}*/
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -959,8 +1073,8 @@ private void mostrarComprobantePago() {
         txtNombreTitular = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
         cmbTtipo = new javax.swing.JComboBox<>();
-        lblPago = new javax.swing.JLabel();
-        TextMonto = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        txtNSS = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1028,73 +1142,69 @@ private void mostrarComprobantePago() {
         cmbTtipo.setFont(new java.awt.Font("Tahoma", 2, 18)); // NOI18N
         cmbTtipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar", "VISA", "Mastercard" }));
 
-        lblPago.setFont(new java.awt.Font("Tahoma", 2, 18)); // NOI18N
-        lblPago.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/dar-dinero.png"))); // NOI18N
-        lblPago.setText("Monto:");
-
-        TextMonto.setFont(new java.awt.Font("Tahoma", 2, 18)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 2, 18)); // NOI18N
+        jLabel1.setText("NSS:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                .addGap(202, 202, 202)
-                                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cmbTtipo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                        .addComponent(fechaCita, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(btnAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(54, 54, 54)
-                                .addComponent(btnConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(39, 39, 39)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(txtCVV, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(38, 38, 38))
-                            .addComponent(txtPaciente)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(txtMetodoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 486, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addComponent(txtNumTarjeta, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtNombreTitular, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(lblPago, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(TextMonto, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
-                .addContainerGap(12, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel6)
                 .addGap(46, 46, 46))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                .addComponent(fechaCita, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(btnAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(54, 54, 54)
+                                        .addComponent(btnConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(39, 39, 39)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(txtCVV, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(38, 38, 38))
+                                    .addComponent(txtPaciente)))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel2Layout.createSequentialGroup()
+                                        .addComponent(txtMetodoPago, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 486, Short.MAX_VALUE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addComponent(txtNumTarjeta, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(txtNombreTitular, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtNSS, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(91, 91, 91)
+                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cmbTtipo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1107,7 +1217,7 @@ private void mostrarComprobantePago() {
                     .addComponent(txtPaciente, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtMetodoPago, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(jLabel12)
@@ -1115,29 +1225,28 @@ private void mostrarComprobantePago() {
                     .addComponent(txtNumTarjeta, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
+                        .addGap(30, 30, 30)
+                        .addComponent(jLabel8)
+                        .addGap(35, 35, 35)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtCVV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblPago)
-                            .addComponent(TextMonto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtNSS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(30, 30, 30)
-                                .addComponent(jLabel8)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txtCVV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel9))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(fechaCita, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(44, 44, 44)))
+                                .addGap(59, 59, 59)))
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel13)
-                            .addComponent(cmbTtipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(58, 58, 58)))
+                            .addComponent(cmbTtipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(43, 43, 43)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAtras)
                     .addComponent(btnConfirmar))
@@ -1163,8 +1272,77 @@ private void mostrarComprobantePago() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnConfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarActionPerformed
-        //registrarPago();
-        mostrarComprobantePago(); 
+    // 1. Validar datos primero
+    if (!validarDatosPago()) {
+        return; // Si no pasa validación, se queda en la ventana
+    }
+    
+    // Obtener el NSS
+    String numeroSeguro = null;
+    if (txtNSS != null && !txtNSS.getText().trim().isEmpty() && 
+        !txtNSS.getText().trim().equals("NSS")) {
+        numeroSeguro = txtNSS.getText().trim();
+    } else if (usuarioId != null && !usuarioId.trim().isEmpty()) {
+        numeroSeguro = usuarioId.trim();
+    }
+    
+    // 2. Mostrar resumen antes de registrar (INCLUYENDO CVV)
+    String ultimos4 = txtNumTarjeta.getText().replaceAll("\\D+", "");
+    if (ultimos4.length() > 4) {
+        ultimos4 = ultimos4.substring(ultimos4.length() - 4);
+    }
+    
+    // Obtener CVV (solo mostrar primeros 2 caracteres por seguridad)
+    String cvvTexto = txtCVV.getText().trim();
+    String cvvMostrar = cvvTexto.length() > 2 ? 
+                        cvvTexto.substring(0, 2) + "*" : 
+                        cvvTexto;
+    
+    int confirmar = JOptionPane.showConfirmDialog(this,
+        "=== RESUMEN DEL REGISTRO ===\n\n" +
+        "👤 Paciente: " + txtPaciente.getText() + "\n" +
+        "🔢 NSS: " + (numeroSeguro != null ? numeroSeguro : "No especificado") + "\n" +
+        "💳 Tipo Tarjeta: " + cmbTtipo.getSelectedItem() + "\n" +
+        "🔢 Número: •••• " + ultimos4 + "\n" +
+        "👤 Titular: " + txtNombreTitular.getText() + "\n" +
+        "🔐 CVV: " + cvvMostrar + "\n" +
+        "📅 Vencimiento: " + new SimpleDateFormat("MM/yyyy").format(fechaCita.getDate()) + "\n" +
+        "💵 Método Pago: " + txtMetodoPago.getText() + "\n\n" +
+        "¿Confirmar registro de esta tarjeta?",
+        "Confirmar Registro de Tarjeta",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE);
+    
+    if (confirmar != JOptionPane.YES_OPTION) {
+        return; // Usuario canceló
+    }
+    
+    // 3. Registrar la tarjeta en BD
+    try {
+        registrarPago();
+        
+        // 4. Mostrar mensaje de éxito
+        JOptionPane.showMessageDialog(this,
+            "✅ TARJETA REGISTRADA EXITOSAMENTE\n\n" +
+            "La información de pago ha sido guardada correctamente.\n" +
+            "Ahora será redirigido al menú principal.",
+            "Registro Completado",
+            JOptionPane.INFORMATION_MESSAGE);
+        
+        // 5. Redirigir a menú principal
+        loginHospitalNuevo menu = new loginHospitalNuevo();
+        menu.setVisible(true);
+        this.dispose();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "❌ Error al registrar tarjeta\n\n" +
+            "Detalle: " + e.getMessage() + "\n" +
+            "Por favor, intente nuevamente.",
+            "Error de Registro",
+            JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
     }//GEN-LAST:event_btnConfirmarActionPerformed
 
     private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtrasActionPerformed
@@ -1173,8 +1351,7 @@ private void mostrarComprobantePago() {
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_btnAtrasActionPerformed
-
-   
+ 
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1185,11 +1362,11 @@ private void mostrarComprobantePago() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField TextMonto;
     private javax.swing.JButton btnAtras;
     private javax.swing.JButton btnConfirmar;
     private javax.swing.JComboBox<String> cmbTtipo;
     private com.toedter.calendar.JDateChooser fechaCita;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1200,9 +1377,9 @@ private void mostrarComprobantePago() {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JLabel lblPago;
     private javax.swing.JTextField txtCVV;
     private javax.swing.JTextField txtMetodoPago;
+    private javax.swing.JTextField txtNSS;
     private javax.swing.JTextField txtNombreTitular;
     private javax.swing.JTextField txtNumTarjeta;
     private javax.swing.JTextField txtPaciente;

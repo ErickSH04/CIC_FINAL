@@ -3,13 +3,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class consultarHistorialClinico extends javax.swing.JFrame {
     private String idExp; 
     private Connection con;
     
     public consultarHistorialClinico(String idExpP) {
-        this.setTitle("Consultar de Clinico");
+        this.setTitle("Consultar de Historial Clinico");
         con = ConexionSQL.ConexionSQLServer();
         setSize(1200,800);
         this.setLocationRelativeTo(null);
@@ -48,8 +50,10 @@ public class consultarHistorialClinico extends javax.swing.JFrame {
         lblFrecuenciaCardiaca = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         lblNombreMedico1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(136, 212, 234));
 
@@ -63,8 +67,8 @@ public class consultarHistorialClinico extends javax.swing.JFrame {
         });
 
         lblAtras.setFont(new java.awt.Font("Roboto", 2, 22)); // NOI18N
-        lblAtras.setIcon(new javax.swing.ImageIcon("C:\\CIC\\loginHospital\\src\\imagenes\\flecha-izquierda (3).png")); // NOI18N
-        lblAtras.setText("Atrás");
+        lblAtras.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/pagina-de-inicio.png"))); // NOI18N
+        lblAtras.setText("Inicio");
         lblAtras.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 lblAtrasMouseClicked(evt);
@@ -81,191 +85,124 @@ public class consultarHistorialClinico extends javax.swing.JFrame {
                 .addComponent(lblUsuario1)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(33, 33, 33)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblSalir)
-                    .addComponent(lblAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addComponent(lblSalir))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(lblAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(95, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(lblUsuario1)
-                .addGap(146, 146, 146)
+                .addGap(143, 143, 143)
                 .addComponent(lblAtras)
-                .addGap(64, 64, 64)
+                .addGap(67, 67, 67)
                 .addComponent(lblSalir)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(304, Short.MAX_VALUE))
         );
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 771));
 
         noName.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         noName.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/documentacionPaciente.png"))); // NOI18N
         noName.setText("Consultar Historial Clinico");
+        getContentPane().add(noName, new org.netbeans.lib.awtextra.AbsoluteConstraints(511, 30, 311, -1));
 
         reloj11.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        getContentPane().add(reloj11, new org.netbeans.lib.awtextra.AbsoluteConstraints(828, 16, -1, -1));
 
         lblEspecialidad.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblEspecialidad.setText("jLabel7");
+        getContentPane().add(lblEspecialidad, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 350, 223, -1));
 
         lblMotivoAtencion.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblMotivoAtencion.setText("jLabel8");
+        getContentPane().add(lblMotivoAtencion, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 390, 213, -1));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel5.setText("Datos del paciente");
+        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 150, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel1.setText("Id Exp:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 190, -1, -1));
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel2.setText("Fecha atencion:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 246, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel3.setText("Especialidad:");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 350, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel4.setText("Motivo Atencion");
+        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 390, -1, -1));
 
         lblidExp.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblidExp.setText("jLabel5");
+        getContentPane().add(lblidExp, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 190, 223, -1));
 
         lblFechaAtencion.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblFechaAtencion.setText("jLabel6");
+        getContentPane().add(lblFechaAtencion, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 246, 223, -1));
 
         jLabel6.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel6.setText("Temperatura:");
+        getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 447, -1, -1));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel8.setText("Frecuencia Respiratoria:");
+        getContentPane().add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 507, -1, -1));
 
         jLabel9.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel9.setText("Presion Arterial:");
+        getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 561, -1, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel10.setText("Frecuencia Cardiaca:");
+        getContentPane().add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(513, 609, -1, -1));
 
         lblTemperatura.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblTemperatura.setText("jLabel12");
+        getContentPane().add(lblTemperatura, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 447, 213, -1));
 
         lblFrecuenciaRespiratoria.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblFrecuenciaRespiratoria.setText("jLabel12");
+        getContentPane().add(lblFrecuenciaRespiratoria, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 507, 213, -1));
 
         lblPresionArterial.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblPresionArterial.setText("jLabel12");
+        getContentPane().add(lblPresionArterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(719, 561, 213, -1));
 
         lblFrecuenciaCardiaca.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblFrecuenciaCardiaca.setText("jLabel12");
+        getContentPane().add(lblFrecuenciaCardiaca, new org.netbeans.lib.awtextra.AbsoluteConstraints(719, 609, 213, -1));
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 3, 16)); // NOI18N
         jLabel7.setText("Nombre Medico:");
+        getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(507, 310, -1, -1));
 
         lblNombreMedico1.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblNombreMedico1.setText("jLabel7");
+        getContentPane().add(lblNombreMedico1, new org.netbeans.lib.awtextra.AbsoluteConstraints(699, 310, 223, -1));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(272, 272, 272)
-                        .addComponent(jLabel5)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 169, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel2)
-                                                .addComponent(jLabel1))
-                                            .addGap(70, 70, 70)
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                .addComponent(lblFechaAtencion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(lblidExp, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(lblNombreMedico1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel6)
-                                                .addComponent(jLabel8)
-                                                .addComponent(jLabel9)
-                                                .addComponent(jLabel10)
-                                                .addComponent(jLabel4)
-                                                .addComponent(jLabel3))
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addGap(26, 26, 26)
-                                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addComponent(lblPresionArterial, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(lblFrecuenciaCardiaca, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                .addGroup(layout.createSequentialGroup()
-                                                    .addGap(6, 6, 6)
-                                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(lblMotivoAtencion, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(lblEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(lblTemperatura, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(lblFrecuenciaRespiratoria, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(jLabel7)
-                                        .addGap(303, 303, 303)))
-                                .addGap(99, 99, 99))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(noName, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(reloj11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(53, 53, 53))))))
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reloj11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(noName))
-                .addGap(60, 60, 60)
-                .addComponent(jLabel5)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblidExp)
-                    .addComponent(jLabel1))
-                .addGap(34, 34, 34)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(lblFechaAtencion))
-                .addGap(42, 42, 42)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(lblNombreMedico1))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(lblEspecialidad))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(lblMotivoAtencion))
-                .addGap(35, 35, 35)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(lblTemperatura))
-                .addGap(38, 38, 38)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(lblFrecuenciaRespiratoria))
-                .addGap(32, 32, 32)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(lblPresionArterial))
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(lblFrecuenciaCardiaca))
-                .addContainerGap(140, Short.MAX_VALUE))
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
         );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(344, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -282,47 +219,92 @@ public class consultarHistorialClinico extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_lblAtrasMouseClicked
     
-private void rellenarEtiquetas(String idExpP){
-    ResultSet rs;
-    Statement st;
+private void rellenarEtiquetas(String idExpP) {
 
-    String q = 
-        "SELECT HC.idExp, HC.fecha_atencion, " +
-        "       M.nombreMed + ' ' + M.apellido1 + ' ' + M.apellido2 AS nombreMedico, " +
-        "       M.Especialidad, HC.motivo_atencion, " +
-        "       HC.temperatura, HC.frecuencia_respiratoria, " +
-        "       HC.presion_arterial, HC.frecuencia_cardiaca " +
-        "FROM expediente_clinico HC " +
-        "JOIN MEDICO M ON HC.id_medico = M.idMedico " +
-        "WHERE  HC.idExp = '" + idExpP + "' " +
-        "ORDER BY HC.fecha_atencion DESC";
-
-    // Variables locales (igual que tu método original)
+    // Variables para los datos
     String idExp = "", fecha = "", medico = "", especialidad = "", motivo = "";
     String temperatura = "", frecResp = "", presion = "", frecCard = "";
 
-    try{
-        st = con.createStatement();
-        rs = st.executeQuery(q);
+    try {
+        // ================================
+        //  PRIMERA BÚSQUEDA: expediente_clinico
+        // ================================
+        String sql1 =
+            "SELECT HC.idExp, HC.fecha_atencion, " +
+            "       M.nombreMed + ' ' + M.apellido1 + ' ' + M.apellido2 AS nombreMedico, " +
+            "       M.Especialidad, HC.motivo_atencion, " +
+            "       HC.temperatura, HC.frecuencia_respiratoria, " +
+            "       HC.presion_arterial, HC.frecuencia_cardiaca " +
+            "FROM expediente_clinico HC " +
+            "JOIN MEDICO M ON HC.id_medico = M.idMedico " +
+            "WHERE HC.idExp = ? ";
 
-        if(rs.next()){  // solo tomamos el expediente más reciente
+        PreparedStatement ps1 = con.prepareStatement(sql1);
+        ps1.setString(1, idExpP);
 
-            idExp = rs.getString("idExp");
-            fecha = rs.getString("fecha_atencion");
-            medico = rs.getString("nombreMedico");
-            especialidad = rs.getString("Especialidad");
-            motivo = rs.getString("motivo_atencion");
-            temperatura = rs.getString("temperatura");
-            frecResp = rs.getString("frecuencia_respiratoria");
-            presion = rs.getString("presion_arterial");
-            frecCard = rs.getString("frecuencia_cardiaca");
+        ResultSet rs1 = ps1.executeQuery();
+
+        boolean encontrado = false;
+
+        if (rs1.next()) {
+            encontrado = true;
+            idExp = rs1.getString("idExp");
+            fecha = rs1.getString("fecha_atencion");
+            medico = rs1.getString("nombreMedico");
+            especialidad = rs1.getString("Especialidad");
+            motivo = rs1.getString("motivo_atencion");
+            temperatura = rs1.getString("temperatura");
+            frecResp = rs1.getString("frecuencia_respiratoria");
+            presion = rs1.getString("presion_arterial");
+            frecCard = rs1.getString("frecuencia_cardiaca");
         }
 
-    }catch(SQLException e){
-        System.out.println(e.getMessage());
+        rs1.close();
+        ps1.close();
+
+        // ================================
+        //  SI NO ESTÁ → BUSCAR EN eliminados
+        // ================================
+        if (!encontrado) {
+
+            String sql2 =
+                "SELECT EE.idExp, EE.fecha_atencion, " +
+                "       M.nombreMed + ' ' + M.apellido1 + ' ' + M.apellido2 AS nombreMedico, " +
+                "       M.Especialidad, EE.motivo_atencion, " +
+                "       EE.temperatura, EE.frecuencia_respiratoria, " +
+                "       EE.presion_arterial, EE.frecuencia_cardiaca " +
+                "FROM expedientes_eliminados EE " +
+                "JOIN MEDICO M ON EE.id_medico = M.idMedico " +
+                "WHERE EE.idExp = ? ";
+
+            PreparedStatement ps2 = con.prepareStatement(sql2);
+            ps2.setString(1, idExpP);
+
+            ResultSet rs2 = ps2.executeQuery();
+
+            if (rs2.next()) {
+                idExp = rs2.getString("idExp");
+                fecha = rs2.getString("fecha_atencion");
+                medico = rs2.getString("nombreMedico");
+                especialidad = rs2.getString("Especialidad");
+                motivo = rs2.getString("motivo_atencion");
+                temperatura = rs2.getString("temperatura");
+                frecResp = rs2.getString("frecuencia_respiratoria");
+                presion = rs2.getString("presion_arterial");
+                frecCard = rs2.getString("frecuencia_cardiaca");
+            }
+
+            rs2.close();
+            ps2.close();
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error en rellenarEtiquetas: " + e.getMessage());
     }
 
-    // Asignación a etiquetas (misma estructura que tu método original)
+    // ================================
+    //  ACTUALIZAR ETIQUETAS
+    // ================================
     lblidExp.setText(idExp);
     lblFechaAtencion.setText(fecha);
     lblNombreMedico1.setText(medico);
@@ -378,6 +360,7 @@ private void rellenarEtiquetas(String idExpP){
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel lblAtras;
     private javax.swing.JLabel lblEspecialidad;

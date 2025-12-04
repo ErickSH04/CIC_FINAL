@@ -63,6 +63,7 @@ public class ventanaCitasPac extends javax.swing.JFrame {
         lblHorarioMedico = new javax.swing.JLabel();
         lblHistorialCita = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        lblPago = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblCita = new javax.swing.JTable();
         cmbMes = new javax.swing.JComboBox<>();
@@ -138,6 +139,15 @@ public class ventanaCitasPac extends javax.swing.JFrame {
             }
         });
 
+        lblPago.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPago.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/dar-dinero.png"))); // NOI18N
+        lblPago.setText("Pago ");
+        lblPago.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                lblPagoMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -148,25 +158,31 @@ public class ventanaCitasPac extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblHorarioMedico, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblInicio)
-                            .addComponent(lblAgregarCita)
-                            .addComponent(lblHistorialCita, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(42, 42, 42)
-                        .addComponent(lblSalir)))
+                        .addComponent(lblSalir))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(lblInicio)
+                                .addGap(0, 166, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblHorarioMedico, javax.swing.GroupLayout.PREFERRED_SIZE, 255, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lblAgregarCita)
+                                .addComponent(lblHistorialCita, javax.swing.GroupLayout.PREFERRED_SIZE, 246, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 279, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(lblPago, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(38, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(lblUsuario)
-                .addGap(55, 55, 55)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblInicio)
-                .addGap(37, 37, 37)
+                .addGap(27, 27, 27)
+                .addComponent(lblPago, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(27, 27, 27)
                 .addComponent(lblHorarioMedico, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(lblAgregarCita)
@@ -176,7 +192,7 @@ public class ventanaCitasPac extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(37, 37, 37)
                 .addComponent(lblSalir)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         tblCita.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
@@ -260,7 +276,7 @@ public class ventanaCitasPac extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 648, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(lblBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -653,6 +669,11 @@ public class ventanaCitasPac extends javax.swing.JFrame {
     ventanaHistorialClinico hm = new ventanaHistorialClinico(usuarioId);
     hm.setVisible(true);
     this.dispose();    }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void lblPagoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblPagoMouseClicked
+        ventanaPagoCitaFinal hm = new ventanaPagoCitaFinal(usuarioId);
+        hm.setVisible(true);
+    }//GEN-LAST:event_lblPagoMouseClicked
 
  /*private void buscarPorFecha() {
     con = ConexionSQL.ConexionSQLServer();
@@ -1132,6 +1153,7 @@ public void modificarCitaAdministrador(int idCita, int nuevoIdMedico, String nue
     private javax.swing.JLabel lblHistorialCita;
     private javax.swing.JLabel lblHorarioMedico;
     private javax.swing.JLabel lblInicio;
+    private javax.swing.JLabel lblPago;
     private javax.swing.JLabel lblSalir;
     private javax.swing.JLabel lblUsuario;
     private Reloj1 reloj11;

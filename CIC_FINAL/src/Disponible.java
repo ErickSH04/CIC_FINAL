@@ -74,8 +74,30 @@ private String nssPacienteValidado = null;
             }
         });
 
-
+configurarColoresTabla();
     }// Fin de constructor
+    
+    // Método para configurar colores en la tabla
+private void configurarColoresTabla() {
+    // Crear el renderer personalizado
+    EstatusColorRenderer renderer = new EstatusColorRenderer();
+    
+    // Aplicar el renderer a todas las columnas
+    for (int i = 0; i < tblHoras.getColumnCount(); i++) {
+        tblHoras.getColumnModel().getColumn(i).setCellRenderer(renderer);
+    }
+    
+    // Configurar propiedades visuales de la tabla
+    tblHoras.setRowHeight(30); // Aumentar altura de filas
+    tblHoras.setFont(new java.awt.Font("Tahoma", java.awt.Font.PLAIN, 16));
+    tblHoras.getTableHeader().setFont(new java.awt.Font("Tahoma", java.awt.Font.BOLD, 16));
+    tblHoras.getTableHeader().setBackground(new java.awt.Color(136, 212, 234));
+    tblHoras.setShowGrid(true);
+    tblHoras.setGridColor(java.awt.Color.LIGHT_GRAY);
+    
+    // Hacer la tabla no editable
+    tblHoras.setDefaultEditor(Object.class, null);
+}
       private void mostrarMensajeHorarioPasado(String fecha, String hora) {
         String[] fechaPartes = fecha.split("-");
         String mesNumero = fechaPartes[1];
@@ -172,52 +194,209 @@ private String nssPacienteValidado = null;
     }
     
       // MÉTODO MEJORADO CON TODAS LAS VALIDACIONES
-    private void agendarCitaConValidaciones(String fecha, String hora) {
-        // 1. Validar NSS del paciente
-        if (nssPacienteValidado == null || nssPacienteValidado.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "❌ No se pudo identificar al paciente.\n" +
-                "Por favor verifique sus datos.",
-                "Error de Paciente",
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // 2. Validar si la hora ya pasó
-        LocalDate fechaActual = LocalDate.now();
-        LocalTime horaActual = LocalTime.now();
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate fechaCita = LocalDate.parse(fecha, formatter);
-        
-        String[] partesHora = hora.split(":");
-        LocalTime horaCita = LocalTime.of(Integer.parseInt(partesHora[0]), 
-                                         Integer.parseInt(partesHora[1]));
-        
-        if (fechaCita.isEqual(fechaActual) && horaCita.isBefore(horaActual)) {
-            JOptionPane.showMessageDialog(this, 
-                "❌ No puedes agendar una cita en un horario que ya pasó.\n" +
-                "Fecha: " + fecha + "\n" +
-                "Hora: " + hora,
-                "Horario no disponible",
-                JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        // 3. Verificar disponibilidad del médico (con duración)
-        if (!verificarDisponibilidadMedico(idMedico, fecha, hora)) {
-            return;
-        }
-        
-        // 4. Verificar que el paciente no tenga otra cita a la misma hora
-        if (!verificarDisponibilidadPaciente(nssPacienteValidado, fecha, hora)) {
-            return;
-        }
-        
-        // 5. Proceder a agendar la cita
-        agendarCitaFinal(fecha, hora, nssPacienteValidado);
+   private void agendarCitaConValidaciones(String fecha, String hora) {
+    // 1. Validar NSS del paciente
+    if (nssPacienteValidado == null || nssPacienteValidado.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "❌ No se pudo identificar al paciente.\n" +
+            "Por favor verifique sus datos.",
+            "Error de Paciente",
+            JOptionPane.ERROR_MESSAGE);
+        return;
     }
+    
+    // 2. Validar si la hora ya pasó
+    LocalDate fechaActual = LocalDate.now();
+    LocalTime horaActual = LocalTime.now();
+    
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate fechaCita = LocalDate.parse(fecha, formatter);
+    
+    String[] partesHora = hora.split(":");
+    LocalTime horaCita = LocalTime.of(Integer.parseInt(partesHora[0]), 
+                                     Integer.parseInt(partesHora[1]));
+    
+    if (fechaCita.isEqual(fechaActual) && horaCita.isBefore(horaActual)) {
+        JOptionPane.showMessageDialog(this, 
+            "❌ No puedes agendar una cita en un horario que ya pasó.\n" +
+            "Fecha: " + fecha + "\n" +
+            "Hora: " + hora,
+            "Horario no disponible",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // 3. Verificar disponibilidad del médico (con duración)
+    if (!verificarDisponibilidadMedico(idMedico, fecha, hora)) {
+        return;
+    }
+    
+    // 4. Verificar que el paciente no tenga otra cita a la misma hora
+    if (!verificarDisponibilidadPaciente(nssPacienteValidado, fecha, hora)) {
+    return;
+}
+    
+    // 5. Proceder a agendar la cita
+    agendarCitaFinal(fecha, hora, nssPacienteValidado);
+}
       
+   private boolean verificarDisponibilidadPaciente(String fecha, String hora) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    try {
+        // Usar el NSS que ya obtuviste
+        String nss = nssPacienteValidado;
+        if (nss == null || nss.trim().isEmpty()) {
+            return true; // Si no hay NSS, permitir continuar
+        }
+        
+        conn = ConexionSQL.ConexionSQLServer();
+        if (conn == null) {
+            return true; // En caso de error de conexión, permitir continuar
+        }
+        
+        // Consulta que verifica SOLAPAMIENTO de horarios (como en tu código ejemplo)
+        String query = """
+            SELECT COUNT(*) as citas_existentes,
+                   (SELECT TOP 1 CONCAT(m.nombreMed, ' ', m.apellido1, ' - ', c.hora) 
+                    FROM MEDICO m INNER JOIN CITA c ON m.idMedico = c.idMedico 
+                    WHERE c.numeroSeguro = ? 
+                    AND c.fecha = ? 
+                    AND c.estatus IN ('Activa','Modificado')
+                    AND ( 
+                        (? BETWEEN c.hora AND DATEADD(MINUTE, ?, c.hora) 
+                        OR DATEADD(MINUTE, ?, ?) BETWEEN c.hora AND DATEADD(MINUTE, ?, c.hora) 
+                        OR c.hora BETWEEN ? AND DATEADD(MINUTE, ?, ?) 
+                        )
+                    )) as medico_hora 
+            FROM CITA 
+            WHERE numeroSeguro = ? 
+            AND fecha = ? 
+            AND estatus IN ('Activa','Modificado')
+            AND ( 
+                (? BETWEEN hora AND DATEADD(MINUTE, ?, hora) 
+                OR DATEADD(MINUTE, ?, ?) BETWEEN hora AND DATEADD(MINUTE, ?, hora) 
+                OR hora BETWEEN ? AND DATEADD(MINUTE, ?, ?) 
+                )
+            )
+            """;
+
+        pstmt = conn.prepareStatement(query);
+        
+        int paramIndex = 1;
+        
+        // Parámetros para la subconsulta (1-9)
+        pstmt.setString(paramIndex++, nss);
+        pstmt.setString(paramIndex++, fecha);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        
+        // Parámetros para la consulta principal (10-18)
+        pstmt.setString(paramIndex++, nss);
+        pstmt.setString(paramIndex++, fecha);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        pstmt.setInt(paramIndex++, DURACION_CITA_MINUTOS);
+        pstmt.setString(paramIndex++, hora);
+        
+        rs = pstmt.executeQuery();
+        
+        if (rs.next()) {
+            int citasExistentes = rs.getInt("citas_existentes");
+            String medicoHora = rs.getString("medico_hora");
+            
+            if (citasExistentes > 0) {
+                JOptionPane.showMessageDialog(this,
+                    "EL PACIENTE YA TIENE UNA CITA EN ESE HORARIO\n\n" +
+                    "El paciente ya tiene una cita que se solapa:\n" +
+                    "Fecha: " + fecha + "\n" +
+                    "Hora solicitada: " + hora + " (Duración: " + DURACION_CITA_MINUTOS + " min)\n" +
+                    "Conflicto con: " + (medicoHora != null ? medicoHora : "Otra cita") + "\n\n" +
+                    "Un paciente no puede tener dos citas en horarios que se solapan.",
+                    "Conflicto de Horario del Paciente",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return false;
+            }
+        }
+        return true;
+        
+    } catch (SQLException ex) {
+        System.err.println("Error verificando disponibilidad del paciente: " + ex.getMessage());
+        return true; // En caso de error, permitir continuar
+    } finally {
+        try { if (rs != null) rs.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+    }
+}
+  /* private boolean verificarDisponibilidadPacienteSimple(String nss, String fecha, String hora) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+
+    try {
+        conn = ConexionSQL.ConexionSQLServer();
+        if (conn == null) {
+            return true; // En caso de error, permitir continuar
+        }
+        
+        // Consulta simplificada - verifica si hay citas activas en la misma fecha y hora exacta
+        String query = """
+            SELECT COUNT(*) as citas_existentes
+            FROM CITA 
+            WHERE numeroSeguro = ? 
+            AND fecha = ? 
+            AND hora = ?
+            AND estatus IN ('Activa','Modificado')
+            """;
+
+        pstmt = conn.prepareStatement(query);
+        pstmt.setString(1, nss);
+        pstmt.setString(2, fecha);
+        pstmt.setString(3, hora);
+        
+        rs = pstmt.executeQuery();
+        
+        if (rs.next()) {
+            int citasExistentes = rs.getInt("citas_existentes");
+            
+            if (citasExistentes > 0) {
+                JOptionPane.showMessageDialog(this,
+                    "EL PACIENTE YA TIENE UNA CITA EN ESE HORARIO\n\n" +
+                    "El paciente ya tiene una cita programada:\n" +
+                    "Fecha: " + fecha + "\n" +
+                    "Hora: " + hora + "\n\n" +
+                    "Un paciente no puede tener dos citas en el mismo horario.",
+                    "Conflicto de Horario del Paciente",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return false;
+            }
+        }
+        return true;
+        
+    } catch (SQLException ex) {
+        System.err.println("Error verificando disponibilidad del paciente: " + ex.getMessage());
+        return true; // En caso de error, permitir continuar
+    } finally {
+        try { if (rs != null) rs.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+    }
+}*/
       
     private String obtenerNombreMes(int index) {
         String[] nombresMeses = {
@@ -368,6 +547,9 @@ private void configurarValidacionPaciente() {
         }
     }
     
+    
+    
+    
     private boolean verificarDisponibilidadPaciente(String nss, String fecha, String hora) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -464,7 +646,7 @@ private void configurarValidacionPaciente() {
         }
     }
     
-    private void agendarCitaFinal(String fecha, String hora, String nss) {
+    /*private void agendarCitaFinal(String fecha, String hora, String nss) {
         String horaFormateada = hora.length() > 5 ? hora.substring(0, 5) : hora;
         
         // Usar el método mejorado de generación de ID
@@ -547,7 +729,89 @@ private void configurarValidacionPaciente() {
             try { if (ps != null) ps.close(); } catch (SQLException ex) { ex.printStackTrace(); }
             try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
         }
+    }*/
+    
+    private void agendarCitaFinal(String fecha, String hora, String nss) {
+    String horaFormateada = hora.length() > 5 ? hora.substring(0, 5) : hora;
+    
+    // Usar el método mejorado de generación de ID
+    String idCita = generarIdCitaSecuencial();
+    
+    String sql = "INSERT INTO CITA (idCita, fecha, hora, numeroSeguro, idMedico, estatus) VALUES (?, ?, ?, ?, ?, 'Activa')";
+    
+    Connection conn = null;
+    PreparedStatement ps = null;
+    
+    try {
+        conn = ConexionSQL.ConexionSQLServer();
+        
+        ps = conn.prepareStatement(sql);
+        ps.setString(1, idCita);
+        ps.setString(2, fecha);
+        ps.setString(3, horaFormateada);
+        ps.setString(4, nss);
+        ps.setInt(5, Integer.parseInt(idMedico));
+        
+        int filasAfectadas = ps.executeUpdate();
+        
+        if (filasAfectadas > 0) {
+            /// Opcional: Enviar notificaciones por correo
+            /*try {
+                String correoMedico = obtenerCorreoMedico(conn, idMedico);
+                String correoPaciente = usuarioId; // Asumiendo que usuarioId es el correo
+                
+                String mensajePaciente = "Programaste una cita para el " + fecha + " a las " + hora + ".\n";
+                String mensajeMedico = "Tienes una cita para el " + fecha + " a las " + hora + ".\n";
+                
+                NotificacionCorreo noti = new NotificacionCorreo();
+                if (correoPaciente != null && !correoPaciente.trim().isEmpty()) {
+                    noti.enviarCorreo(correoPaciente, "Recordatorio de cita médica", mensajePaciente);
+                }
+                if (correoMedico != null && !correoMedico.trim().isEmpty()) {
+                    noti.enviarCorreo(correoMedico, "Recordatorio de cita médica", mensajeMedico);
+                }
+            } catch (Exception e) {
+                System.err.println("Error enviando correos: " + e.getMessage());
+                // No lanzar excepción, solo log
+            }*/
+            
+            JOptionPane.showMessageDialog(this, 
+                "✅ Cita agendada exitosamente\n\n" +
+                "ID de cita: " + idCita + "\n" +
+                "Médico: " + nombreMed + "\n" +
+                "Fecha: " + fecha + "\n" +
+                "Hora: " + hora,
+                "Cita Confirmada",
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            // Recargar horarios
+            if (fechaEsValida()) {
+                filtrarPorFecha();
+            } else {
+                cargarHorasDisponibles();
+            }
+        }
+        
+    } catch (SQLException e) {
+        // Manejo mejorado de errores
+        if (e.getMessage().contains("duplicate key") || e.getMessage().contains("PRIMARY KEY")) {
+            JOptionPane.showMessageDialog(this, 
+                "❌ Error: ID de cita duplicado. Intente nuevamente.\n" +
+                "ID generado: " + idCita,
+                "Error de Duplicado",
+                JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Error al agendar cita: " + e.getMessage(),
+                "Error de Base de Datos",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    } finally {
+        try { if (ps != null) ps.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
     }
+}
+    
     
     private String obtenerCorreoMedico(Connection conn, String idMedico) throws SQLException {
         String query = "SELECT Correo FROM MEDICO WHERE idMedico = ?";
@@ -704,6 +968,7 @@ private void configurarValidacionPaciente() {
             }
 
             tblHoras.setModel(modelo);
+            repintarTabla();
 
             if(!hayDatos){
                 JOptionPane.showMessageDialog(this, "❌ No hay horarios disponibles en esa fecha.");
@@ -740,6 +1005,18 @@ private void configurarValidacionPaciente() {
         return true;
     }
     
+    // Agrega este método después de configurarColoresTabla()
+private void repintarTabla() {
+    // Forzar repintado para aplicar colores
+    tblHoras.repaint();
+    
+    // Opcional: También puedes re-aplicar el renderer si es necesario
+    EstatusColorRenderer renderer = new EstatusColorRenderer();
+    for (int i = 0; i < tblHoras.getColumnCount(); i++) {
+        tblHoras.getColumnModel().getColumn(i).setCellRenderer(renderer);
+    }
+}
+
     private void cargarHorasDisponibles() {
         DefaultTableModel modelo = new DefaultTableModel();
         modelo.addColumn("Fecha");
@@ -810,7 +1087,7 @@ private void configurarValidacionPaciente() {
             }
 
             tblHoras.setModel(modelo);
-
+            repintarTabla();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
@@ -820,6 +1097,50 @@ private void limpiarTabla() {
     DefaultTableModel modelo = (DefaultTableModel) tblHoras.getModel();
     modelo.setRowCount(0);
 }
+
+// Clase interna para renderizar celdas con colores
+class EstatusColorRenderer extends javax.swing.table.DefaultTableCellRenderer {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table,
+            Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        
+        java.awt.Component cell = super.getTableCellRendererComponent(table, value, 
+                isSelected, hasFocus, row, column);
+        
+        // Obtener el valor de la columna "Estatus" (columna 2)
+        String estatus = table.getValueAt(row, 2).toString();
+        
+        // Configurar colores según el estatus
+        if ("Disponible".equals(estatus)) {
+            cell.setBackground(new java.awt.Color(255, 255, 153)); // Amarillo claro
+            cell.setForeground(java.awt.Color.BLACK);
+        } else if ("Ocupado".equals(estatus)) {
+            cell.setBackground(new java.awt.Color(255, 165, 0)); // Naranja
+            cell.setForeground(java.awt.Color.BLACK);
+        } else if ("Pasada".equals(estatus)) {
+            cell.setBackground(new java.awt.Color(200, 200, 200)); // Gris para pasado
+            cell.setForeground(java.awt.Color.DARK_GRAY);
+        } else {
+            cell.setBackground(java.awt.Color.WHITE);
+            cell.setForeground(java.awt.Color.BLACK);
+        }
+        
+        // Mantener color de selección
+        if (isSelected) {
+            cell.setBackground(new java.awt.Color(100, 149, 237)); // Azul para selección
+            cell.setForeground(java.awt.Color.WHITE);
+        }
+        
+        // Centrar texto
+        setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        
+        return cell;
+    }
+}
+
+
+
+
 
 
     @SuppressWarnings("unchecked")
@@ -958,6 +1279,7 @@ private void limpiarTabla() {
         });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/Especialidad.png"))); // NOI18N
         jLabel1.setText("Especialidad:");
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -987,27 +1309,27 @@ private void limpiarTabla() {
                                 .addComponent(lblFecha)
                                 .addGap(38, 38, 38))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addContainerGap())
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(70, 70, 70)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblBuscar)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel4)
-                                    .addComponent(lblBuscar))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(79, 79, 79)
-                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(cmbMes, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(57, 57, 57)
-                                        .addComponent(cmbDia, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(99, 99, 99)
-                                        .addComponent(btnLimpiar)))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(cmbMes, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(57, 57, 57)
+                                .addComponent(cmbDia, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(99, 99, 99)
+                                .addComponent(btnLimpiar))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel1)
+                                .addGap(32, 32, 32)
+                                .addComponent(txtEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
@@ -1020,19 +1342,19 @@ private void limpiarTabla() {
                     .addComponent(reloj11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(11, 11, 11)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblBuscar)
-                    .addComponent(jLabel1)
-                    .addComponent(txtEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 985, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
+                        .addGap(16, 16, 16)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblBuscar)
+                            .addComponent(jLabel1)
+                            .addComponent(txtEspecialidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(cmbMes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cmbDia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1064,7 +1386,7 @@ private void limpiarTabla() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
-       m.setRowCount(0);
+    m.setRowCount(0);
     cmbMes.setSelectedIndex(0);
     cmbDia.setSelectedIndex(0);
     cargarHorasDisponibles(); 
