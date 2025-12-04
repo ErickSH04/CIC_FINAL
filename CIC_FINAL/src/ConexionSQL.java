@@ -4,14 +4,14 @@ import java.sql.SQLException;
 
 public class ConexionSQL {
     public static Connection con;
-/*
-   public static Connection ConexionSQLServer() {
+
+   /*public static Connection ConexionSQLServer() {
         // Cambia "database-name" por el nombre de tu base de datos, "username" y "password" por tus credenciales
         // Y "db-instance-endpoint" por el endpoint de tu base de datos en RDS.
         String conexionUr1 = "jdbc:sqlserver://localhost:1433;"  // Reemplaza con tu endpoint de RDS
                 + "database=Agenda;"  // Reemplaza con el nombre de tu base de datos en RDS
                 + "user=sa;"  // Reemplaza con tu nombre de usuario
-                + "password=Tecnologico1;"  // Reemplaza con tu contraseña
+                + "password=1234;"  // Reemplaza con tu contraseña
                 + "encrypt=true;"
                 + "trustServerCertificate=true;"
                 + "loginTimeout=30;";  // Tiempo de espera en segundos
@@ -45,7 +45,6 @@ public class ConexionSQL {
             return null;
         }
     }
-
    
 
     public static void main(String[] args) {

@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,25 +14,64 @@ public class ventanaPagoCitaFinal extends javax.swing.JFrame {
 
     private String usuarioId;
     private String idCitaPago; 
+    private String numeroSeguroActual;
+    private String tarjeta;
 
-    public ventanaPagoCitaFinal(String usuarioId) {
-        initComponents();
-        this.usuarioId = usuarioId;
+public ventanaPagoCitaFinal(String usuarioId) {
+    initComponents();
+    this.usuarioId = usuarioId;
 
-        txtPaciente.setEditable(false);
-        txtNumTarjeta.setEditable(false);
-        txtEspecialidad.setEditable(false);
-        txtNomMed.setEditable(false);
-        txtHora.setEditable(false);
-        txtCosto.setEditable(false);
-        txtFechaCita.setEditable(false);
+    // Solo estos DOS se editan:
+    txtCVV.setEditable(true);
+    fechaCita.setEnabled(true);
 
-        btnPagar.setText("Realizar Pago");
-          String numeroSeguro = obtenerNumeroSeguro(usuarioId);
+    // Todo lo demás bloqueado
+    txtPaciente.setEditable(false);
+    txtEspecialidad.setEditable(false);
+    txtNomMed.setEditable(false);
+    txtHora.setEditable(false);
+    txtCosto.setEditable(false);
+    txtFechaCita.setEditable(false);
 
-        cargarDatosParaPago(numeroSeguro);
-        configurarPlaceholderCVV();
+    btnPagar.setText("Realizar Pago");
+
+    // Resolver NSS solo una vez
+    this.numeroSeguroActual = resolverNumeroSeguro(usuarioId);
+
+    // Cargar todo usando SIEMPRE numeroSeguroActual
+    cargarDatosParaPago(numeroSeguroActual);
+    configurarPlaceholderCVV();
+}
+
+private String resolverNumeroSeguro(String id) {
+    if (id == null || id.trim().isEmpty()) return null;
+    if (id.contains("@")) {
+        // id es correo -> buscar NSS
+        return obtenerNumeroSeguro(id);
     }
+    // id ya es NSS
+    return id.trim();
+}
+
+ private void agregarPlaceholders() {
+        // Número de Tarjeta
+        txtNumTarjeta.setText("Ingrese número de tarjeta");
+        txtNumTarjeta.setForeground(Color.GRAY);
+        txtNumTarjeta.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                if (txtNumTarjeta.getText().equals("Ingrese número de tarjeta")) {
+                    txtNumTarjeta.setText("");
+                    txtNumTarjeta.setForeground(Color.BLACK);
+                }
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                if (txtNumTarjeta.getText().isEmpty()) {
+                    txtNumTarjeta.setForeground(Color.GRAY);
+                    txtNumTarjeta.setText("Ingrese número de tarjeta");
+                }
+            }
+        });
+ }
    private String obtenerNumeroSeguro(String correo) {
     String sql = "SELECT numeroSeguro FROM PACIENTE WHERE Correo = ?";
 
@@ -54,6 +94,25 @@ public class ventanaPagoCitaFinal extends javax.swing.JFrame {
 
 
     private void configurarPlaceholderCVV() {
+          // Número de Tarjeta
+        txtNumTarjeta.setText("Ingrese número de tarjeta");
+        txtNumTarjeta.setForeground(Color.GRAY);
+        txtNumTarjeta.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                if (txtNumTarjeta.getText().equals("Ingrese número de tarjeta")) {
+                    txtNumTarjeta.setText("");
+                    txtNumTarjeta.setForeground(Color.BLACK);
+                }
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                if (txtNumTarjeta.getText().isEmpty()) {
+                    txtNumTarjeta.setForeground(Color.GRAY);
+                    txtNumTarjeta.setText("Ingrese número de tarjeta");
+                }
+            }
+        });
+        
+        
         txtCVV.setText("Ingrese CVV");
         txtCVV.setForeground(Color.GRAY);
 
@@ -72,160 +131,237 @@ public class ventanaPagoCitaFinal extends javax.swing.JFrame {
             }
         });
     }
+// agrega arriba en la clase:
+private BigDecimal tarifa = BigDecimal.ZERO;
+private BigDecimal yaPagado = BigDecimal.ZERO;
+private BigDecimal importeAPagar = BigDecimal.ZERO;
+    
+  public void cargarDatosParaPago(String numeroSeguro) {
+    this.numeroSeguroActual = numeroSeguro; // guarda el NSS definitivo
 
-    public void cargarDatosParaPago(String numeroSeguro) {
-        String sql =
-            "SELECT TOP 1 " +
-            "p.nombrePac + ' ' + p.apellido1 + ' ' + ISNULL(p.apellido2, '') AS pacienteCompleto, " +
-            "c.fecha, c.hora, c.idCita, " +
-            "m.nombreMed + ' ' + m.apellido1 + ' ' + ISNULL(m.apellido2,'') AS medicoCompleto, " +
-            "m.Especialidad, te.precio " +
-            "FROM PACIENTE p " +
-            "JOIN CITA c ON p.numeroSeguro = c.numeroSeguro " +
-            "JOIN MEDICO m ON c.idMedico = m.idMedico " +
-            "LEFT JOIN tarifa_especialidad te ON m.Especialidad = te.especialidad " +
-            "WHERE p.numeroSeguro = ? AND c.estatus = 'Completado' " +
-            "ORDER BY c.fecha DESC, c.hora DESC";
+    String sql =
+        "WITH tot AS ( " +
+        "  SELECT pc.idCita, SUM(p.monto) AS total_pagado " +
+        "  FROM Pago p " +
+        "  JOIN PagoCita pc ON pc.idPago = p.idPago " +
+        "  GROUP BY pc.idCita " +
+        ") " +
+        "SELECT TOP 1 " +
+        "  p.nombrePac + ' ' + p.apellido1 + ' ' + ISNULL(p.apellido2,'') AS pacienteCompleto, " +
+        "  c.fecha, c.hora, c.idCita, " +
+        "  m.nombreMed + ' ' + m.apellido1 + ' ' + ISNULL(m.apellido2,'') AS medicoCompleto, " +
+        "  m.Especialidad, te.precio AS tarifa, ISNULL(tot.total_pagado,0) AS total_pagado " +
+        "FROM CITA c " +
+        "JOIN PACIENTE p ON p.numeroSeguro = c.numeroSeguro " +
+        "JOIN MEDICO m   ON m.idMedico = c.idMedico " +
+        "LEFT JOIN tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+        "LEFT JOIN tot ON tot.idCita = c.idCita " +
+        "WHERE p.numeroSeguro = ? AND c.estatus IN ('Activa','Completado') " +
+        "ORDER BY c.fecha DESC, c.hora DESC";
 
-        try (Connection conn = ConexionSQL.ConexionSQLServer();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = ConexionSQL.ConexionSQLServer();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, numeroSeguro);
-            ResultSet rs = ps.executeQuery();
-
+        ps.setString(1, this.numeroSeguroActual);
+        try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 txtPaciente.setText(rs.getString("pacienteCompleto"));
-
                 Date fecha = rs.getDate("fecha");
-                txtFechaCita.setText(new SimpleDateFormat("dd/MM/yyyy").format(fecha));
-
+                txtFechaCita.setText(new java.text.SimpleDateFormat("dd/MM/yyyy").format(fecha));
                 txtHora.setText(rs.getString("hora"));
                 idCitaPago = rs.getString("idCita");
                 txtNomMed.setText(rs.getString("medicoCompleto"));
                 txtEspecialidad.setText(rs.getString("Especialidad"));
 
-                BigDecimal precio = rs.getBigDecimal("precio");
-                txtCosto.setText(NumberFormat.getCurrencyInstance().format(precio));
+                tarifa = rs.getBigDecimal("tarifa");       if (tarifa == null) tarifa = BigDecimal.ZERO;
+                yaPagado = rs.getBigDecimal("total_pagado");if (yaPagado == null) yaPagado = BigDecimal.ZERO;
+                importeAPagar = tarifa.subtract(yaPagado);
+                if (importeAPagar.compareTo(BigDecimal.ZERO) < 0) importeAPagar = BigDecimal.ZERO;
 
-                cargarDatosTarjeta();
+                txtCosto.setText(java.text.NumberFormat.getCurrencyInstance().format(importeAPagar));
+
+                // AHORA sí: usa el MISMO NSS ya resuelto
+                //cargarDatosTarjeta(this.numeroSeguroActual);
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró una cita 'Completado' para pagar.");
+                dispose();
             }
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar datos: " + e.getMessage());
         }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar datos: " + e.getMessage());
+    }
+}
+
+private void cargarDatosTarjeta(String numeroSeguro) {
+    if (numeroSeguro == null || numeroSeguro.trim().isEmpty()) {
+        txtNumTarjeta.setText("No tiene tarjeta registrada");
+        return;
     }
 
-    private void cargarDatosTarjeta() {
-        String sql =
-            "SELECT TOP 1 numTarjeta " +
-            "FROM Pago WHERE numeroSeguro = ? ORDER BY fechaPago DESC";
+    String sql = "SELECT NUMTARJETA FROM PAGO WHERE CVV = ?";
 
-        try (Connection conn = ConexionSQL.ConexionSQLServer();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = ConexionSQL.ConexionSQLServer();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-           ps.setString(1, obtenerNumeroSeguro(usuarioId));
+        ps.setString(1, numeroSeguro);
 
-            ResultSet rs = ps.executeQuery();
-
+        try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 String numTarjeta = rs.getString("numTarjeta");
+
                 if (numTarjeta != null && numTarjeta.length() >= 4) {
+                    // Mostrar solo los últimos 4 dígitos
                     String ult4 = numTarjeta.substring(numTarjeta.length() - 4);
                     txtNumTarjeta.setText("**** **** **** " + ult4);
                 } else {
                     txtNumTarjeta.setText("Sin tarjeta");
                 }
+
             } else {
                 txtNumTarjeta.setText("No tiene tarjeta registrada");
             }
-
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error al cargar tarjeta: " + e.getMessage());
         }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar tarjeta: " + e.getMessage());
+    }
+}
+
+
+   private boolean validarDatosPago() {
+      // 1. Validar que se haya cargado el paciente (usando usuarioId)
+    if (usuarioId == null || usuarioId.trim().isEmpty() || txtPaciente.getText().trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "No se ha cargado la información del paciente.\nVerifique el NSS.",
+                "Error de Validación", JOptionPane.WARNING_MESSAGE);
+        return false;
     }
 
-    private boolean validarDatosPago() {
-        String cvv = txtCVV.getText().trim();
-        if (cvv.equals("Ingrese CVV")) {
-            JOptionPane.showMessageDialog(this, "Ingrese el CVV.");
-            return false;
-        }
-        if (!cvv.matches("\\d{3,4}")) {
-            JOptionPane.showMessageDialog(this, "CVV inválido.");
-            return false;
-        }
-
-        Date fechaVenc = fechaCita.getDate();
-        if (fechaVenc == null || fechaVenc.before(new Date())) {
-            JOptionPane.showMessageDialog(this, "Fecha de vencimiento inválida.");
-            return false;
-        }
-
-        return true;
+    // 2. Validar número de tarjeta
+    String numTarjeta = txtNumTarjeta.getText().replaceAll("\\D+", "");
+    if (numTarjeta.length() < 13 || numTarjeta.length() > 19) {
+        JOptionPane.showMessageDialog(this,
+                "Número de tarjeta inválido.\nDebe contener entre 13 y 19 dígitos.",
+                "Error de Validación", JOptionPane.WARNING_MESSAGE);
+        txtNumTarjeta.requestFocus();
+        txtNumTarjeta.selectAll();
+        return false;
+    }  
+       
+       
+    // CVV
+    String cvv = txtCVV.getText().trim().replaceAll("\\D+","");
+    if (cvv.length() < 3 || cvv.length() > 4) {
+        JOptionPane.showMessageDialog(this, "CVV inválido.");
+        txtCVV.requestFocus(); return false;
     }
+    // Vencimiento
+    if (fechaCita.getDate() == null || fechaCita.getDate().before(new java.util.Date())) {
+        JOptionPane.showMessageDialog(this, "Vencimiento inválido.");
+        fechaCita.requestFocus(); return false;
+    }
+    return true;
+}
 
-    private String obtenerNumeroTarjetaCompleto() {
-        String sql = "SELECT TOP 1 numTarjeta FROM Pago WHERE numeroSeguro=? ORDER BY fechaPago DESC";
+   private String obtenerNumeroTarjetaCompleto() {
+    if (this.numeroSeguroActual == null || this.numeroSeguroActual.trim().isEmpty()) return null;
 
-        try (Connection conn = ConexionSQL.ConexionSQLServer();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, usuarioId);
-            ResultSet rs = ps.executeQuery();
-
+    String sql = "SELECT TOP 1 numTarjeta FROM Pago WHERE numeroSeguro=? ORDER BY fechaPago DESC";
+    try (Connection conn = ConexionSQL.ConexionSQLServer();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, this.numeroSeguroActual);
+        try (ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getString("numTarjeta");
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error leyendo tarjeta: " + e.getMessage());
         }
-        return null;
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error leyendo tarjeta: " + e.getMessage());
+    }
+    return null;
+}
+
+   private void procesarPago() {
+    if (!validarDatosPago()) return;
+
+    if (importeAPagar.compareTo(BigDecimal.ZERO) <= 0) {
+        JOptionPane.showMessageDialog(this, "Esta cita ya está pagada.");
+        return;
     }
 
-    private void procesarPago() {
-        if (!validarDatosPago()) return;
+    Connection conn = null;
+    PreparedStatement psPago = null;
+    PreparedStatement psLink = null;
+    PreparedStatement psUpd  = null;
 
-        Connection conn = null;
-        PreparedStatement ps = null;
-        PreparedStatement ps2 = null;
+    try {
+        conn = ConexionSQL.ConexionSQLServer();
+        conn.setAutoCommit(false);
 
-        try {
-            conn = ConexionSQL.ConexionSQLServer();
-            conn.setAutoCommit(false);
-
-            String idPago = "P" + System.currentTimeMillis();
-            BigDecimal monto = new BigDecimal(txtCosto.getText().replaceAll("[^0-9.]", ""));
-
-            String numTarjetaReal = obtenerNumeroTarjetaCompleto();
-
-            String sql =
-                "INSERT INTO Pago (idPago, monto, fechaPago, numTarjeta, cvv, FechVencimiento, numeroSeguro) " +
-                "VALUES (?, ?, GETDATE(), ?, ?, ?, ?)";
-
-            ps = conn.prepareStatement(sql);
-            ps.setString(1, idPago);
-            ps.setBigDecimal(2, monto);
-            ps.setString(3, numTarjetaReal);
-            ps.setString(4, txtCVV.getText().replaceAll("\\D+", ""));
-            ps.setDate(5, new java.sql.Date(fechaCita.getDate().getTime()));
-            ps.setString(6, usuarioId);
-
-            ps.executeUpdate();
-
-            ps2 = conn.prepareStatement("UPDATE CITA SET pagoRealizado='SI' WHERE idCita=?");
-            ps2.setString(1, idCitaPago);
-            ps2.executeUpdate();
-
-            conn.commit();
-
-            mostrarComprobantePago(idPago, monto);
-
-            dispose();
-
-        } catch (Exception e) {
-            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
-            JOptionPane.showMessageDialog(this, "Error al procesar pago: " + e.getMessage());
+        // último número de tarjeta usado por el paciente
+        String numTarjetaReal = obtenerNumeroTarjetaCompleto(); // ya la tienes
+        if (numTarjetaReal == null || numTarjetaReal.isBlank()) {
+            JOptionPane.showMessageDialog(this, "No hay tarjeta registrada para este paciente.");
+            return;
         }
+
+        // 1) Insertar pago por el IMPORTE RESTANTE
+        String sqlPago =
+            "INSERT INTO Pago (monto, fechaPago, tipoPago, numTarjeta, cvv, FechVencimiento, numeroSeguro) " +
+            "VALUES (?, GETDATE(), 'Tarjeta', ?, ?, ?, ?)";
+        psPago = conn.prepareStatement(sqlPago, Statement.RETURN_GENERATED_KEYS);
+        psPago.setBigDecimal(1, importeAPagar);
+        psPago.setString(2, numTarjetaReal);
+        psPago.setString(3, txtCVV.getText().replaceAll("\\D+",""));
+        psPago.setDate  (4, new java.sql.Date(fechaCita.getDate().getTime())); // vencimiento
+        psPago.setString(5, this.numeroSeguroActual);                   // NSS del paciente
+        psPago.executeUpdate();
+
+        int idPago;
+        try (ResultSet gk = psPago.getGeneratedKeys()) {
+            if (!gk.next()) throw new SQLException("No se obtuvo idPago.");
+            idPago = gk.getInt(1);
+        }
+
+        // 2) Ligar pago a la cita
+        String sqlPC = "INSERT INTO PagoCita(idPago, idCita) VALUES(?, ?)";
+        psLink = conn.prepareStatement(sqlPC);
+        psLink.setInt(1, idPago);
+        psLink.setString(2, idCitaPago);
+        psLink.executeUpdate();
+
+        // 3) Calcular nuevo total y, si cubre tarifa, marcar como pagada
+        BigDecimal nuevoTotal = yaPagado.add(importeAPagar);
+        if (tarifa.compareTo(BigDecimal.ZERO) > 0 && nuevoTotal.compareTo(tarifa) >= 0) {
+            psUpd = conn.prepareStatement("UPDATE CITA SET pagoRealizado = 'SI' WHERE idCita = ?");
+            psUpd.setString(1, idCitaPago);
+            psUpd.executeUpdate();
+        }
+
+        conn.commit();
+
+        // 4) Comprobante
+        String numTar = txtNumTarjeta.getText(); // ya está enmascarada
+        String msg =
+            "===== PAGO EXITOSO =====\n" +
+            "ID Pago: " + idPago + "\n" +
+            "Paciente: " + txtPaciente.getText() + "\n" +
+            "Médico: " + txtNomMed.getText() + "\n" +
+            "Monto: " + java.text.NumberFormat.getCurrencyInstance().format(importeAPagar) + "\n" +
+            "Tarjeta: " + numTar + "\n" +
+            "Estatus: " + (nuevoTotal.compareTo(tarifa) >= 0 ? "Pagado" : "Pago incompleto");
+        JOptionPane.showMessageDialog(this, msg, "Comprobante", JOptionPane.INFORMATION_MESSAGE);
+
+        dispose(); // cerrar la ventana
+
+    } catch (Exception e) {
+        try { if (conn != null) conn.rollback(); } catch (Exception ignore) {}
+        JOptionPane.showMessageDialog(this, "Error al procesar pago: " + e.getMessage());
+    } finally {
+        try { if (psUpd  != null) psUpd.close(); }  catch (Exception ignore) {}
+        try { if (psLink != null) psLink.close(); } catch (Exception ignore) {}
+        try { if (psPago != null) psPago.close(); } catch (Exception ignore) {}
+        try { if (conn   != null) conn.close(); }  catch (Exception ignore) {}
     }
+}
 
     private void mostrarComprobantePago(String idPago, BigDecimal monto) {
         String msg =
@@ -305,7 +441,7 @@ public class ventanaPagoCitaFinal extends javax.swing.JFrame {
                 btnPagarActionPerformed(evt);
             }
         });
-        lblEspecialidad.add(btnPagar, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 370, 132, -1));
+        lblEspecialidad.add(btnPagar, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 370, 230, -1));
 
         txtCVV.setFont(new java.awt.Font("Tahoma", 2, 18)); // NOI18N
         lblEspecialidad.add(txtCVV, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 220, 110, -1));
