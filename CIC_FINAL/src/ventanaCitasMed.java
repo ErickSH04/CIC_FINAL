@@ -104,7 +104,6 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         });
 
         lblCitasT.setFont(new java.awt.Font("Roboto", 2, 22)); // NOI18N
-        lblCitasT.setIcon(new javax.swing.ImageIcon("C:\\CIC_FINAL\\CIC_FINAL\\CIC_FINAL\\src\\imagenes\\cita-medica.png")); // NOI18N
         lblCitasT.setText("Citas totales");
         lblCitasT.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -700,11 +699,11 @@ public class ventanaCitasMed extends javax.swing.JFrame {
         try {
 
             stmt = con.createStatement();
-            String query="select cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n"
-            +"from cita cit\n"
-            +"inner join paciente pac on (pac.numeroSeguro = cit.numeroSeguro)\n"
-            +"where (convert(date, fecha)>=convert(date, getDate())) and idMedico ="+Integer.parseInt(this.medico.getIdMedico())+"\n"
-            +"ORDER BY cit.fecha";
+            String query="SELECT cit.fecha, cit.hora, pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, cit.estatus\n" +
+            "FROM cita cit\n" +
+            "INNER JOIN paciente pac ON pac.numeroSeguro = cit.numeroSeguro\n" +
+            "WHERE cit.fecha >= CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'Central Standard Time' AS date) AND cit.idMedico ="+Integer.parseInt(this.medico.getIdMedico())+"\n" +
+            "ORDER BY cit.fecha;";
             
             ResultSet result = stmt.executeQuery(query);
 

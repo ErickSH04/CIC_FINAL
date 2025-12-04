@@ -468,9 +468,9 @@ public class ventanaMedico extends javax.swing.JFrame {
     }//GEN-LAST:event_lblCitasMouseClicked
 
     private void lblRecetasMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblRecetasMouseClicked
-        //VentanaAgregarReceta ventanaAgregar = new VentanaAgregarReceta();
-         //ventanaAgregar.setVisible(true);
-         //this.dispose();
+         seleccionarReceta cr = new seleccionarReceta(ventanaMedico.getMedico());
+         cr.setVisible(true);
+         this.dispose();
     }//GEN-LAST:event_lblRecetasMouseClicked
 
     private void lblExpedientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblExpedientesMouseClicked
