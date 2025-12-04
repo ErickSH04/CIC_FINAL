@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import static javax.swing.JOptionPane.showMessageDialog;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import java.math.BigDecimal;
 
 
 public class ventaPagos extends javax.swing.JFrame {
@@ -83,267 +84,219 @@ public class ventaPagos extends javax.swing.JFrame {
             JOptionPane.ERROR_MESSAGE);
     }
 }
-    private void obtenerDetallesCompletosPago(String idPago, String numeroSeguro) {
-    Connection conn = null;
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    
-    try {
-        conn = ConexionSQL.ConexionSQLServer();
-        if (conn != null) {
-            String query = 
-                "SELECT " +
-                // Información del pago
-                "p.idPago, p.monto, p.fechaPago, p.tipoPago, p.numTarjeta, " +
-                // Información del paciente
-                "pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
-                // Información de la última cita (si existe)
-                "c.idCita, c.fecha AS fechaCita, c.hora AS horaCita, " +
-                // Información del médico de la cita
-                "m.nombreMed, m.apellido1 AS apellido1Med, m.especialidad " +
-                "FROM Pago p " +
-                "INNER JOIN Paciente pac ON p.numeroSeguro = pac.numeroSeguro " +
-                "LEFT JOIN Cita c ON p.numeroSeguro = c.numeroSeguro " +
-                "LEFT JOIN Medico m ON c.idMedico = m.idMedico " +
-                "WHERE p.idPago = ? AND p.numeroSeguro = ? " +
-                "ORDER BY c.fecha DESC, c.hora DESC " + // Última cita primero
-                "OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY"; // Solo la más reciente
-            
-            pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, idPago);
-            pstmt.setString(2, numeroSeguro);
-            
-            rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                // Extraer todos los datos
-                String monto = "$" + String.format("%.2f", rs.getDouble("monto"));
-                String fechaPago = rs.getString("fechaPago");
-                String tipoPago = rs.getInt("tipoPago") == 1 ? "Tarjeta de Crédito" : "Efectivo";
-                String numTarjeta = rs.getString("numTarjeta") != null ? 
-                                   "**** **** **** " + rs.getString("numTarjeta") : "No registrada";
-                
-                // Información del paciente
-                String nombrePaciente = rs.getString("nombrePac") + " " + 
-                                       rs.getString("apellido1") + " " + 
-                                       rs.getString("apellido2");
-                String nss = rs.getString("numeroSeguro");
-                
-                // Información de la cita (si existe)
-                String idCita = rs.getString("idCita");
-                String fechaCita = rs.getString("fechaCita");
-                String horaCita = rs.getString("horaCita");
-                // ELIMINADO: String servicio = rs.getString("servicio");
-                
-                // Información del médico (si existe)
-                String nombreMedico = rs.getString("nombreMed");
-                String apellidoMedico = rs.getString("apellido1Med");
-                String especialidad = rs.getString("especialidad");
-                
-                String nombreCompletoMedico = (nombreMedico != null && apellidoMedico != null) ?
-                                             nombreMedico + " " + apellidoMedico : "No asignado";
-                
-                // Crear mensaje simple para el diálogo (sin servicio)
+  private void obtenerDetallesCompletosPago(String idPago, String ignorado) {
+    try (Connection conn = ConexionSQL.ConexionSQLServer()) {
+        if (conn == null) return;
+
+        String q =
+          "SELECT p.idPago, p.monto, p.fechaPago, p.tipoPago, p.numTarjeta, " +
+          "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
+          "       c.idCita, c.fecha AS fechaCita, c.hora AS horaCita, " +
+          "       m.nombreMed, m.apellido1 AS apellido1Med, m.Especialidad, te.precio AS tarifa " +
+          "FROM Pago p " +
+          "LEFT JOIN PagoCita pc ON pc.idPago = p.idPago " +
+          "LEFT JOIN Cita c      ON c.idCita  = pc.idCita " +
+          "LEFT JOIN Medico m    ON m.idMedico = c.idMedico " +
+          "LEFT JOIN Paciente pac ON pac.numeroSeguro = c.numeroSeguro " +
+          "LEFT JOIN tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+          "WHERE p.idPago = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(q)) {
+            ps.setString(1, idPago);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return;
+
+                BigDecimal montoBD = rs.getBigDecimal("monto");
+                BigDecimal tarifaBD = rs.getBigDecimal("tarifa");
+                String monto = "$" + (montoBD == null ? "0.00" : montoBD.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString());
+
+                String estatus;
+                if (tarifaBD == null) estatus = "Pagado";
+                else if (montoBD != null && montoBD.compareTo(tarifaBD) >= 0) estatus = "Pagado";
+                else {
+                    BigDecimal falta = tarifaBD.subtract(montoBD == null ? BigDecimal.ZERO : montoBD);
+                    estatus = "Pago incompleto: falta $" + falta.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
+                }
+
+                String numTarjeta = rs.getString("numTarjeta");
+                if (numTarjeta == null || numTarjeta.isBlank()) numTarjeta = "No registrada";
+                else if (numTarjeta.length() >= 4) numTarjeta = "**** **** **** " + numTarjeta.substring(numTarjeta.length() - 4);
+
                 String mensaje = crearMensajeDetallesSimple(
-                    idPago, monto, fechaPago, tipoPago, numTarjeta,
-                    nombrePaciente, nss,
-                    idCita, fechaCita, horaCita, /* servicio, */ // Eliminado
-                    nombreCompletoMedico, especialidad
+                    idPago, monto, String.valueOf(rs.getObject("fechaPago")), rs.getString("tipoPago"), numTarjeta,
+                    s(rs.getString("nombrePac")) + " " + s(rs.getString("apellido1")) + " " + s(rs.getString("apellido2")),
+                    s(rs.getString("numeroSeguro")),
+                    s(rs.getString("idCita")), s(rs.getString("fechaCita")), s(rs.getString("horaCita")),
+                    s(rs.getString("nombreMed")) + " " + s(rs.getString("apellido1Med")),
+                    s(rs.getString("Especialidad")),
+                    (tarifaBD == null ? "Sin tarifa definida" : "$" + tarifaBD.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString()),
+                    estatus
                 );
-                
-                // Mostrar en un JOptionPane simple
-                JOptionPane.showMessageDialog(this, 
-                    mensaje, 
-                    "DETALLES COMPLETOS DEL PAGO - ID: " + idPago, 
+
+                JOptionPane.showMessageDialog(this, mensaje,
+                    "DETALLES COMPLETOS DEL PAGO - ID: " + idPago,
                     JOptionPane.INFORMATION_MESSAGE);
-                
-            } else {
-                // Si no hay cita relacionada, mostrar solo información del pago
-                //mostrarInformacionBasicaPago(idPago, numeroSeguro, conn);
             }
         }
     } catch (SQLException ex) {
-        System.err.println("Error al obtener detalles del pago: " + ex.getMessage());
         ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, 
-            "Error al obtener detalles: " + ex.getMessage(),
-            "Error de Base de Datos", 
-            JOptionPane.ERROR_MESSAGE);
-    } finally {
-        try { if (rs != null) rs.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-        try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        JOptionPane.showMessageDialog(this, "Error al obtener detalles: " + ex.getMessage(),
+                "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
     }
 }
+
+
+
     
     
-    private String crearMensajeDetallesSimple(
+   private String crearMensajeDetallesSimple(
     String idPago, String monto, String fechaPago, String tipoPago, String numTarjeta,
     String nombrePaciente, String nss,
-    String idCita, String fechaCita, String horaCita, String servicio,
-    String nombreMedico, String especialidad) {
-    
+    String idCita, String fechaCita, String horaCita,
+    String nombreMedico, String especialidad,
+    String tarifaStr, String estatus) {
+
     StringBuilder mensaje = new StringBuilder();
     mensaje.append("========================================\n");
     mensaje.append("       DETALLES COMPLETOS DEL PAGO       \n");
     mensaje.append("========================================\n\n");
-    
-    // SECCIÓN 1: INFORMACIÓN DEL PAGO
+
+    // Pago
     mensaje.append("INFORMACIÓN DEL PAGO\n");
     mensaje.append("────────────────────────────────────────\n");
-    mensaje.append("ID de Pago:        ").append(idPago).append("\n");
-    mensaje.append("Monto:             ").append(monto).append("\n");
-    mensaje.append("Fecha de Pago:     ").append(fechaPago).append("\n");
-    mensaje.append("Método de Pago:    ").append(tipoPago).append("\n");
-    mensaje.append("Tarjeta:           ").append(numTarjeta).append("\n\n");
-    
-    // SECCIÓN 2: INFORMACIÓN DEL PACIENTE
+    mensaje.append("ID de Pago:            ").append(idPago).append("\n");
+    mensaje.append("Monto:                 ").append(monto).append("\n");
+    mensaje.append("Fecha de Pago:         ").append(fechaPago).append("\n");
+    mensaje.append("Método de Pago:        ").append(tipoPago).append("\n");
+    mensaje.append("Tarjeta:               ").append(numTarjeta).append("\n");
+    mensaje.append("Tarifa (especialidad): ").append(tarifaStr).append("\n");
+    mensaje.append("Estatus:               ").append(estatus).append("\n\n");
+
+    // Paciente
     mensaje.append("INFORMACIÓN DEL PACIENTE\n");
     mensaje.append("────────────────────────────────────────\n");
-    mensaje.append("Nombre:            ").append(nombrePaciente).append("\n");
-    mensaje.append("Número de Seguro:  ").append(nss).append("\n\n");
-    
-    // SECCIÓN 3: INFORMACIÓN DE LA CITA (si existe)
+    mensaje.append("Nombre:                ").append(nombrePaciente).append("\n");
+    mensaje.append("Número de Seguro:      ").append(nss).append("\n\n");
+
+    // Cita/Médico
     if (idCita != null) {
         mensaje.append("INFORMACIÓN DE LA CITA\n");
         mensaje.append("────────────────────────────────────────\n");
-        mensaje.append("ID Cita:          ").append(idCita).append("\n");
-        mensaje.append("Fecha:            ").append(fechaCita).append("\n");
-        mensaje.append("Hora:             ").append(horaCita).append("\n");
-        mensaje.append("Servicio:         ").append(servicio).append("\n\n");
-        
-        // SECCIÓN 4: INFORMACIÓN DEL MÉDICO
+        mensaje.append("ID Cita:               ").append(idCita).append("\n");
+        mensaje.append("Fecha:                 ").append(fechaCita).append("\n");
+        mensaje.append("Hora:                  ").append(horaCita).append("\n\n");
+
         mensaje.append("INFORMACIÓN DEL MÉDICO\n");
         mensaje.append("────────────────────────────────────────\n");
-        mensaje.append("Médico:           ").append(nombreMedico).append("\n");
-        mensaje.append("Especialidad:     ").append(especialidad != null ? especialidad : "No especificada").append("\n");
+        mensaje.append("Médico:                ").append(nombreMedico).append("\n");
+        mensaje.append("Especialidad:          ").append(especialidad != null ? especialidad : "No especificada").append("\n");
     } else {
-        mensaje.append("ℹ️  NOTA:\n");
+        mensaje.append("NOTA\n");
         mensaje.append("────────────────────────────────────────\n");
         mensaje.append("No se encontró cita relacionada con este pago.\n");
     }
-    
+
     mensaje.append("\n========================================\n");
-    
     return mensaje.toString();
 }
-    
-    
-    private String crearMensajeDetallesSimple(
-    String idPago, String monto, String fechaPago, String tipoPago, String numTarjeta,
-    String nombrePaciente, String nss,
-    String idCita, String fechaCita, String horaCita, // Eliminado: String servicio,
-    String nombreMedico, String especialidad) {
-    
-    StringBuilder mensaje = new StringBuilder();
-    mensaje.append("========================================\n");
-    mensaje.append("       DETALLES COMPLETOS DEL PAGO       \n");
-    mensaje.append("========================================\n\n");
-    
-    // SECCIÓN 1: INFORMACIÓN DEL PAGO
-    mensaje.append("INFORMACIÓN DEL PAGO\n");
-    mensaje.append("────────────────────────────────────────\n");
-    mensaje.append("ID de Pago:        ").append(idPago).append("\n");
-    mensaje.append("Monto:             ").append(monto).append("\n");
-    mensaje.append("Fecha de Pago:     ").append(fechaPago).append("\n");
-    mensaje.append("Método de Pago:    ").append(tipoPago).append("\n");
-    mensaje.append("Tarjeta:           ").append(numTarjeta).append("\n\n");
-    
-    // SECCIÓN 2: INFORMACIÓN DEL PACIENTE
-    mensaje.append("INFORMACIÓN DEL PACIENTE\n");
-    mensaje.append("────────────────────────────────────────\n");
-    mensaje.append("Nombre:            ").append(nombrePaciente).append("\n");
-    mensaje.append("Número de Seguro:  ").append(nss).append("\n\n");
-    
-    // SECCIÓN 3: INFORMACIÓN DE LA CITA (si existe)
-    if (idCita != null) {
-        mensaje.append("INFORMACIÓN DE LA CITA\n");
-        mensaje.append("────────────────────────────────────────\n");
-        mensaje.append("ID Cita:          ").append(idCita).append("\n");
-        mensaje.append("Fecha:            ").append(fechaCita).append("\n");
-        mensaje.append("Hora:             ").append(horaCita).append("\n");
-        // ELIMINADO: mensaje.append("Servicio:         ").append(servicio).append("\n\n");
-        mensaje.append("\n");
-        
-        // SECCIÓN 4: INFORMACIÓN DEL MÉDICO
-        mensaje.append("INFORMACIÓN DEL MÉDICO\n");
-        mensaje.append("────────────────────────────────────────\n");
-        mensaje.append("Médico:           ").append(nombreMedico).append("\n");
-        mensaje.append("Especialidad:     ").append(especialidad != null ? especialidad : "No especificada").append("\n");
-    } else {
-        mensaje.append("ℹ️  NOTA:\n");
-        mensaje.append("────────────────────────────────────────\n");
-        mensaje.append("No se encontró cita relacionada con este pago.\n");
+
+   private static boolean hasColumn(Connection conn, String table, String column) throws SQLException {
+    String sql = "SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=? AND COLUMN_NAME=?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, table);
+        ps.setString(2, column);
+        try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
     }
-    
-    mensaje.append("\n========================================\n");
-    
-    return mensaje.toString();
 }
-   
+
     
-    
-    
-    private void cargarTodosLosPagos() {
+    private void ensureTablaTarifaIfMissing() throws SQLException {
+    String ddl = ""
+        + "IF NOT EXISTS (SELECT 1 FROM sys.objects "
+        + "WHERE object_id = OBJECT_ID(N'[dbo].[tarifa_especialidad]') AND type = N'U') "
+        + "BEGIN "
+        + "  CREATE TABLE dbo.tarifa_especialidad( "
+        + "    especialidad    VARCHAR(100) NOT NULL PRIMARY KEY, "
+        + "    precio          DECIMAL(10,2) NOT NULL, "
+        + "    actualizado_por VARCHAR(100) NULL, "
+        + "    actualizado_en  DATETIME NOT NULL DEFAULT GETDATE() "
+        + "  ); "
+        + "END";
+    try (Statement st = con.createStatement()) { st.executeUpdate(ddl); }
+}
+
+    private static String s(Object o){ return o==null? "" : o.toString(); }
+
+private void cargarTodosLosPagos() {
     Connection conn = null;
     Statement stmt = null;
     ResultSet rs = null;
-    
+
     try {
         conn = ConexionSQL.ConexionSQLServer();
-        if (conn != null) {
-            stmt = conn.createStatement();
-            
-            // Consulta para obtener pagos con información del paciente
-            String query = "SELECT p.idPago, p.fechaPago, p.monto, " +
-                          "pac.nombrePac, pac.apellido1, pac.apellido2, " +
-                          "p.numeroSeguro " +
-                          "FROM Pago p " +
-                          "INNER JOIN Paciente pac ON p.numeroSeguro = pac.numeroSeguro " +
-                          "ORDER BY p.fechaPago DESC, p.idPago DESC";
-            
-            System.out.println("Ejecutando consulta: " + query);
-            rs = stmt.executeQuery(query);
-            
-            m.setRowCount(0); // Limpiar tabla
-            Object R[] = new Object[7];
-            
-            double totalMonto = 0.0;
-            int totalPagos = 0;
-            
-            while (rs.next()) {
-                R[0] = rs.getObject("idPago");
-                R[1] = rs.getObject("fechaPago");
-                R[2] = "$" + String.format("%.2f", rs.getDouble("monto"));
-                R[3] = rs.getObject("nombrePac");
-                R[4] = rs.getObject("apellido1");
-                R[5] = rs.getObject("apellido2");
-                R[6] = rs.getObject("numeroSeguro");
-                m.addRow(R);
-                
-                totalMonto += rs.getDouble("monto");
-                totalPagos++;
-            }
-            
-            // Actualizar título con estadísticas
-            jLabel2.setText("Registro de Pagos: (" + totalPagos + " pagos - Total: $" + 
-                           String.format("%.2f", totalMonto) + ")");
-            
-            System.out.println("Cargados " + totalPagos + " pagos. Total: $" + totalMonto);
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Sin conexión.");
+            return;
         }
+
+        String query =
+            "SELECT p.idPago, p.fechaPago, p.monto, " +
+            "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
+            "       CASE " +
+            "         WHEN te.precio IS NULL THEN 'Pagado' " +
+            "         WHEN p.monto >= te.precio THEN 'Pagado' " +
+            "         ELSE 'Pago incompleto: falta $' + CONVERT(varchar(32), te.precio - p.monto) " +
+            "       END AS estatus " +
+            "FROM Pago p " +
+            "LEFT JOIN PagoCita pc ON pc.idPago = p.idPago " +
+            "LEFT JOIN Cita c      ON c.idCita  = pc.idCita " +
+            "LEFT JOIN Paciente pac ON pac.numeroSeguro = c.numeroSeguro " +
+            "LEFT JOIN Medico m     ON m.idMedico = c.idMedico " +
+            "LEFT JOIN tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+            "ORDER BY p.fechaPago DESC, p.idPago DESC";
+
+        stmt = conn.createStatement();
+        rs = stmt.executeQuery(query);
+
+        m.setRowCount(0);
+        double totalMonto = 0.0;
+        int totalPagos = 0;
+
+        while (rs.next()) {
+            double monto = rs.getBigDecimal("monto") == null ? 0.0 : rs.getBigDecimal("monto").doubleValue();
+
+            m.addRow(new Object[] {
+                rs.getObject("idPago"),
+                rs.getObject("fechaPago"),
+                "$" + String.format("%.2f", monto),
+                s(rs.getString("nombrePac")),
+                s(rs.getString("apellido1")),
+                s(rs.getString("apellido2")),
+                s(rs.getString("numeroSeguro")),
+                s(rs.getString("estatus"))
+            });
+
+            totalMonto += monto;
+            totalPagos++;
+        }
+
+        lblPago.setText("Pagos registrados — Total: $" + String.format("%.2f", totalMonto));
+        jLabel2.setText("Pagos: " + totalPagos);
+
     } catch (SQLException ex) {
-        System.err.println("Error al cargar pagos: " + ex.getMessage());
         ex.printStackTrace();
-        JOptionPane.showMessageDialog(this, 
-            "Error al cargar los pagos: " + ex.getMessage(),
-            "Error de Base de Datos",
-            JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error al cargar los pagos: " + ex.getMessage(),
+                "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
     } finally {
-        try { if (rs != null) rs.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-        try { if (stmt != null) stmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-        try { if (conn != null) conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        try { if (rs != null) rs.close(); } catch (SQLException ignored) {}
+        try { if (stmt != null) stmt.close(); } catch (SQLException ignored) {}
+        try { if (conn != null) conn.close(); } catch (SQLException ignored) {}
     }
 }
+
+
+
+
     
     
     private void actualizarFechaActual() {
@@ -355,7 +308,7 @@ public class ventaPagos extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        lblpagos = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         lblUsuario = new javax.swing.JLabel();
         lblSalir = new javax.swing.JLabel();
@@ -370,8 +323,8 @@ public class ventaPagos extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setMaximumSize(new java.awt.Dimension(850, 600));
+        lblpagos.setBackground(new java.awt.Color(255, 255, 255));
+        lblpagos.setMaximumSize(new java.awt.Dimension(850, 600));
 
         jPanel2.setBackground(new java.awt.Color(136, 212, 234));
 
@@ -425,17 +378,17 @@ public class ventaPagos extends javax.swing.JFrame {
         tblCita.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         tblCita.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID Pago", "Fecha Pago", "Monto", "Nombre", "Apellido 1", "Apellido 2", "Numero Seguro"
+                "ID Pago", "Fecha Pago", "Monto", "Nombre", "Apellido 1", "Apellido 2", "Numero Seguro", "Estatus"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, true, false, true
+                false, false, false, false, true, false, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -472,27 +425,27 @@ public class ventaPagos extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout lblpagosLayout = new javax.swing.GroupLayout(lblpagos);
+        lblpagos.setLayout(lblpagosLayout);
+        lblpagosLayout.setHorizontalGroup(
+            lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblpagosLayout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(lblpagosLayout.createSequentialGroup()
+                        .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(lblpagosLayout.createSequentialGroup()
                                 .addGap(18, 18, 18)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 827, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addGroup(lblpagosLayout.createSequentialGroup()
                                 .addGap(285, 285, 285)
                                 .addComponent(lblPago)))
                         .addContainerGap(13, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblpagosLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addGap(164, 164, 164))))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblpagosLayout.createSequentialGroup()
                 .addGap(363, 363, 363)
                 .addComponent(lblBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -501,18 +454,18 @@ public class ventaPagos extends javax.swing.JFrame {
                 .addComponent(lblFecha)
                 .addGap(53, 53, 53))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        lblpagosLayout.setVerticalGroup(
+            lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(lblpagosLayout.createSequentialGroup()
+                .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(lblpagosLayout.createSequentialGroup()
                         .addGap(140, 140, 140)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(lblpagosLayout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addComponent(lblPago)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -528,11 +481,11 @@ public class ventaPagos extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblpagos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(lblpagos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -618,7 +571,6 @@ public class ventaPagos extends javax.swing.JFrame {
     private DefaultTableModel m;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblBuscar;
@@ -627,6 +579,7 @@ public class ventaPagos extends javax.swing.JFrame {
     private javax.swing.JLabel lblPago;
     private javax.swing.JLabel lblSalir;
     private javax.swing.JLabel lblUsuario;
+    private javax.swing.JPanel lblpagos;
     private javax.swing.JTable tblCita;
     private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
