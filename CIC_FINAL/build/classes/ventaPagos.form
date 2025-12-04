@@ -70,11 +70,7 @@
                   </Group>
               </Group>
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace min="-2" pref="363" max="-2" attributes="0"/>
-                  <Component id="lblBuscar" min="-2" pref="145" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="txtBuscar" min="-2" pref="209" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace min="363" pref="917" max="32767" attributes="0"/>
                   <Component id="lblFecha" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
               </Group>
@@ -84,23 +80,11 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="jPanel2" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="140" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="lblBuscar" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                              <Component id="txtBuscar" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
-                          <Component id="lblPago" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="lblFecha" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="90" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
+                  <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                  <Component id="lblPago" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="lblFecha" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="90" max="-2" attributes="0"/>
                   <Component id="jScrollPane1" min="-2" pref="240" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" pref="23" max="-2" attributes="0"/>
@@ -202,7 +186,7 @@
                 </Property>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                   <Table columnCount="8" rowCount="4">
-                    <Column editable="false" title="ID Pago" type="java.lang.Object"/>
+                    <Column editable="false" title="#" type="java.lang.Object"/>
                     <Column editable="false" title="Fecha Pago" type="java.lang.Object"/>
                     <Column editable="false" title="Monto" type="java.lang.Object"/>
                     <Column editable="false" title="Nombre" type="java.lang.Object"/>
@@ -287,23 +271,6 @@
             </Property>
             <Property name="text" type="java.lang.String" value="fecha actual"/>
           </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="lblBuscar">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Tahoma" size="14" style="1"/>
-            </Property>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/imagenes/buscar (1).png"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Buscar paciente"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="txtBuscar">
-          <Events>
-            <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtBuscarKeyPressed"/>
-            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txtBuscarKeyReleased"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>

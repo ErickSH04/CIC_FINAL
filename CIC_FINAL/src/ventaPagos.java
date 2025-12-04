@@ -94,12 +94,13 @@ public class ventaPagos extends javax.swing.JFrame {
   "       c.idCita, c.fecha AS fechaCita, c.hora AS horaCita, " +
   "       m.nombreMed, m.apellido1 AS apellido1Med, m.Especialidad, te.precio AS tarifa " +
   "FROM dbo.Pago p " +
-  "LEFT JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +
-  "LEFT JOIN dbo.Cita c      ON c.idCita  = pc.idCita " +
-  "LEFT JOIN dbo.Medico m    ON m.idMedico = c.idMedico " +
-  "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = LTRIM(RTRIM(c.numeroSeguro)) " + // <<< AQUÍ
+  "JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +      // <- obligatorio
+  "JOIN dbo.Cita c ON c.idCita = pc.idCita " +           // <- obligatorio
+  "JOIN dbo.Medico m ON m.idMedico = c.idMedico " +
+  "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = LTRIM(RTRIM(c.numeroSeguro)) " +
   "LEFT JOIN dbo.tarifa_especialidad te ON te.especialidad = m.Especialidad " +
   "WHERE p.idPago = ?";
+
 
 
         try (PreparedStatement ps = conn.prepareStatement(q)) {
@@ -240,21 +241,31 @@ private void cargarTodosLosPagos() {
             return;
         }
 
-        String query =
+       String query =
+    "WITH tot AS ( " +
+    "  SELECT c.idCita, SUM(p.monto) AS total_pagado " +
+    "  FROM dbo.Pago p " +
+    "  JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +       // <- SOLO pagos con cita
+    "  JOIN dbo.Cita c ON c.idCita = pc.idCita " +
+    "  GROUP BY c.idCita " +
+    ") " +
     "SELECT p.idPago, p.fechaPago, p.monto, " +
-    "       pac.nombrePac, pac.apellido1, pac.apellido2, pac.numeroSeguro, " +
+    "       pac.nombrePac, pac.apellido1, pac.apellido2, c.numeroSeguro, " +
+    "       te.precio AS tarifa, ISNULL(tot.total_pagado, 0) AS total_pagado_cita, " +
     "       CASE " +
     "         WHEN te.precio IS NULL THEN 'Pagado' " +
-    "         WHEN p.monto >= te.precio THEN 'Pagado' " +
-    "         ELSE 'Pago incompleto: falta $' + CONVERT(varchar(32), te.precio - p.monto) " +
+    "         WHEN ISNULL(tot.total_pagado,0) >= te.precio THEN 'Pagado' " +
+    "         ELSE 'Pago incompleto: falta $' + CONVERT(varchar(32), te.precio - ISNULL(tot.total_pagado,0)) " +
     "       END AS estatus " +
     "FROM dbo.Pago p " +
-    "LEFT JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +
-    "LEFT JOIN dbo.Cita c      ON c.idCita  = pc.idCita " +
-    "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = LTRIM(RTRIM(c.numeroSeguro)) " + // <<< AQUÍ
-    "LEFT JOIN dbo.Medico m     ON m.idMedico = c.idMedico " +
+    "JOIN dbo.PagoCita pc ON pc.idPago = p.idPago " +          // <- INNER, no LEFT
+    "JOIN dbo.Cita c ON c.idCita = pc.idCita " +
+    "JOIN dbo.Medico m ON m.idMedico = c.idMedico " +
+    "LEFT JOIN dbo.PACIENTE pac ON pac.numeroSeguro = c.numeroSeguro " +
     "LEFT JOIN dbo.tarifa_especialidad te ON te.especialidad = m.Especialidad " +
+    "LEFT JOIN tot ON tot.idCita = c.idCita " +
     "ORDER BY p.fechaPago DESC, p.idPago DESC";
+
 
 
         stmt = conn.createStatement();
@@ -265,18 +276,20 @@ private void cargarTodosLosPagos() {
         int totalPagos = 0;
 
         while (rs.next()) {
-            double monto = rs.getBigDecimal("monto") == null ? 0.0 : rs.getBigDecimal("monto").doubleValue();
+           double monto = rs.getBigDecimal("monto") == null ? 0.0 : rs.getBigDecimal("monto").doubleValue();
+double tarifa = rs.getBigDecimal("tarifa") == null ? 0.0 : rs.getBigDecimal("tarifa").doubleValue();
 
-            m.addRow(new Object[] {
-                rs.getObject("idPago"),
-                rs.getObject("fechaPago"),
-                "$" + String.format("%.2f", monto),
-                s(rs.getString("nombrePac")),
-                s(rs.getString("apellido1")),
-                s(rs.getString("apellido2")),
-                s(rs.getString("numeroSeguro")),
-                s(rs.getString("estatus"))
-            });
+m.addRow(new Object[] {
+    rs.getObject("idPago"),
+    rs.getObject("fechaPago"),
+    "$" + String.format("%.2f", monto),
+    (tarifa == 0.0 ? "—" : "$" + String.format("%.2f", tarifa)),
+    s(rs.getString("nombrePac")),
+    s(rs.getString("apellido1")),
+    s(rs.getString("apellido2")),
+    s(rs.getString("numeroSeguro")),
+    s(rs.getString("estatus"))
+});
 
             totalMonto += monto;
             totalPagos++;
@@ -320,8 +333,6 @@ private void cargarTodosLosPagos() {
         jLabel2 = new javax.swing.JLabel();
         lblPago = new javax.swing.JLabel();
         lblFecha = new javax.swing.JLabel();
-        lblBuscar = new javax.swing.JLabel();
-        txtBuscar = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -386,7 +397,7 @@ private void cargarTodosLosPagos() {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID Pago", "Fecha Pago", "Monto", "Nombre", "Apellido 1", "Apellido 2", "Numero Seguro", "Estatus"
+                "#", "Fecha Pago", "Monto", "Nombre", "Apellido 1", "Apellido 2", "Numero Seguro", "Estatus"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -414,19 +425,6 @@ private void cargarTodosLosPagos() {
         lblFecha.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         lblFecha.setText("fecha actual");
 
-        lblBuscar.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        lblBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/buscar (1).png"))); // NOI18N
-        lblBuscar.setText("Buscar paciente");
-
-        txtBuscar.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtBuscarKeyPressed(evt);
-            }
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                txtBuscarKeyReleased(evt);
-            }
-        });
-
         javax.swing.GroupLayout lblpagosLayout = new javax.swing.GroupLayout(lblpagos);
         lblpagos.setLayout(lblpagosLayout);
         lblpagosLayout.setHorizontalGroup(
@@ -448,11 +446,7 @@ private void cargarTodosLosPagos() {
                         .addComponent(jLabel2)
                         .addGap(164, 164, 164))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblpagosLayout.createSequentialGroup()
-                .addGap(363, 363, 363)
-                .addComponent(lblBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(363, 917, Short.MAX_VALUE)
                 .addComponent(lblFecha)
                 .addGap(53, 53, 53))
         );
@@ -460,19 +454,11 @@ private void cargarTodosLosPagos() {
             lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(lblpagosLayout.createSequentialGroup()
-                .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(lblpagosLayout.createSequentialGroup()
-                        .addGap(140, 140, 140)
-                        .addGroup(lblpagosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lblBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(lblpagosLayout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addComponent(lblPago)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblFecha)
-                        .addGap(90, 90, 90)))
+                .addGap(24, 24, 24)
+                .addComponent(lblPago)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblFecha)
+                .addGap(90, 90, 90)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -496,14 +482,6 @@ private void cargarTodosLosPagos() {
     private void lblSalirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSalirMouseClicked
         System.exit(0);
     }//GEN-LAST:event_lblSalirMouseClicked
-
-    private void txtBuscarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyPressed
-        
-    }//GEN-LAST:event_txtBuscarKeyPressed
-
-    private void txtBuscarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtBuscarKeyReleased
-        
-    }//GEN-LAST:event_txtBuscarKeyReleased
    
     private void lblInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblInicioMouseClicked
          try {
@@ -575,7 +553,6 @@ private void cargarTodosLosPagos() {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblBuscar;
     private javax.swing.JLabel lblFecha;
     private javax.swing.JLabel lblInicio;
     private javax.swing.JLabel lblPago;
@@ -583,6 +560,5 @@ private void cargarTodosLosPagos() {
     private javax.swing.JLabel lblUsuario;
     private javax.swing.JPanel lblpagos;
     private javax.swing.JTable tblCita;
-    private javax.swing.JTextField txtBuscar;
     // End of variables declaration//GEN-END:variables
 }
