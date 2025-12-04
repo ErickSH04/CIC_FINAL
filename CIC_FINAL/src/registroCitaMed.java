@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Calendar;
@@ -137,11 +138,6 @@ public class registroCitaMed extends javax.swing.JFrame {
         txtIdCita.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         txtHora.setFont(new java.awt.Font("Tahoma", 2, 14)); // NOI18N
-        txtHora.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtHoraKeyPressed(evt);
-            }
-        });
 
         btnAtras.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         btnAtras.setText("Atrás");
@@ -353,13 +349,6 @@ public class registroCitaMed extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnAtrasActionPerformed
 
-    private void txtHoraKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtHoraKeyPressed
-        char c = (char) evt.getKeyCode();
-        if (c == evt.VK_ENTER) {
-            registrarCita(this.medico.getCorreo());
-        }
-    }//GEN-LAST:event_txtHoraKeyPressed
-
     private void txtNombreKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNombreKeyPressed
         char c = (char) evt.getKeyCode();
         if (c == evt.VK_ENTER) {
@@ -403,11 +392,35 @@ public class registroCitaMed extends javax.swing.JFrame {
         
         nss = txtNss.getText();
         idCita = txtIdCita.getText();
-        hora = txtHora.getText();
+        LocalTime horaCita = LocalTime.parse(txtHora.getText());
         
+        
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime cita = LocalDateTime.of(fechaCita, horaCita);
+
+    // 1. No permitir fechas en el pasado
+        if (fechaCita.isBefore(LocalDate.now())) {
+            showMessageDialog(null,"No se permite agendar citas en fechas pasadas");
+            return;
+        }
+
+    // 2. Si la cita es hoy, validar que la hora no sea pasada
+        if (fechaCita.isEqual(LocalDate.now()) && horaCita.isBefore(LocalTime.now())) {
+            showMessageDialog(null,"No se permite agendar citas horas pasadas");
+            return;
+        }
+
+    // 3. Validar al menos 3 horas de anticipación
+        if (cita.isBefore(ahora.plusHours(3))) {
+            showMessageDialog(null,"Agende en otra fecha y hora con mínimo 3 horas de anticipación.");
+            return ;
+        }
+        
+        /*
         LocalTime compara;
         LocalTime actual = LocalTime.now();
         compara = LocalTime.parse(hora);
+
         
         if (fechaCita.isBefore(hoy)) {
             showMessageDialog(null, "No puede agendar citas en una fecha pasada.");
@@ -419,10 +432,10 @@ public class registroCitaMed extends javax.swing.JFrame {
                 showMessageDialog(null, "No puede agendar citas antes de la hora actual.");
                 return;
             }
-        }
+        }*/
 
         String query = "INSERT INTO Cita (idCita, fecha, hora, numeroSeguro, idMedico, estatus)\n"
-          +"VALUES ('"+idCita+"','"+fechaFormato+"','"+hora+"','"+nss+"',"+Integer.parseInt(this.medico.getIdMedico())+",'Activa');";
+          +"VALUES ('"+idCita+"','"+fechaFormato+"','"+txtHora.getText()+"','"+nss+"',"+Integer.parseInt(this.medico.getIdMedico())+",'Activa');";
         Statement stmt2;
         String queryD = "SELECT Correo\n"
                 + "FROM Paciente\n"
@@ -439,8 +452,8 @@ public class registroCitaMed extends javax.swing.JFrame {
             Logger.getLogger(registroCitaPac.class.getName()).log(Level.SEVERE, null, ex);
         }*/
 
-        String mensaje = "Programaste una cita para el " + fechaFormato + " a las " + hora + ".\n";
-        String mensajePac = "Tienes una cita para el " + fechaFormato + " a las " + hora + ".\n";
+        String mensaje = "Programaste una cita para el " + fechaFormato + " a las " + txtHora.getText() + ".\n";
+        String mensajePac = "Tienes una cita para el " + fechaFormato + " a las " + txtHora.getText() + ".\n";
 
         //NotificacionCorreo noti = new NotificacionCorreo();
         //noti.enviarCorreo(correo, "Recordatorio de cita médica", mensaje);

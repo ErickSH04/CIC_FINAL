@@ -3,7 +3,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Date;
 
 /**
@@ -322,30 +324,11 @@ public class expMed extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_lblAgregarMouseClicked
     
-    public static int obtenerEdadReal(String fecNac){
-        int edadReal=0;
-        Date fechaAct= new Date();
-        
-        int years, mes, dia, aNac, mNac, dNac;
-        //2000-02-04
-        aNac = Integer.parseInt(fecNac.substring(0,4));
-        mNac = Integer.parseInt(fecNac.substring(5,7));
-        dNac = Integer.parseInt(fecNac.substring(8,10));
-        LocalDateTime act  = LocalDateTime.now();
-        
-        years = act.getYear();
-        mes = act.getMonth().getValue();
-        dia = act.getDayOfMonth();
-        
-        System.out.println("Datos actuales:"+years+"-"+mes+"-"+dia);
-        System.out.println("Datos de nacimiento:"+aNac+"-"+mNac+"-"+dNac);
-        
-        if((mNac<mes)&&(dNac<dia)){
-            edadReal=years-aNac;
-        }else{
-            edadReal=(years-aNac)-1;
-        }
-        return edadReal;
+
+    public static int obtenerEdadReal(String fechaNac){
+        LocalDate nacimiento = LocalDate.parse(fechaNac);
+        LocalDate hoy = LocalDate.now();
+        return Period.between(nacimiento, hoy).getYears();
     }
     
     private void lblConsultarExpMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblConsultarExpMouseClicked
